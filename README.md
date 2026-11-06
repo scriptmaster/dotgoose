@@ -6,9 +6,37 @@ The starter translates a single C# file. It supports scalar code, basic control 
 
 ## Explainer video
 
-[Watch Part 1 · C# to Goose (MP4)](videos/dotgoose-part-1.mp4?raw=1) · [English captions](videos/dotgoose-part-1.en.srt)
+https://github.com/user-attachments/assets/de94fdad-7123-40a4-9df9-f241230994cb
 
-Eight narrated examples compare C# with the generated Goose and show the output each program produces in both runtimes. The walkthrough starts with console output and ends with receiver dispatch and evaluation order.
+[Download Part 1 · C# to Goose (MP4)](https://github.com/scriptmaster/dotgoose/raw/refs/heads/main/videos/dotgoose-part-1.mp4) · [English captions](videos/dotgoose-part-1.en.srt)
+
+Eight numbered examples compare C# with the generated Goose and show the matching output. The final section compares the build sizes for the same programs.
+
+### Part 1 binary sizes
+
+| Part 1 example | Goose executable | .NET Native AOT executable | .NET managed DLL |
+| --- | ---: | ---: | ---: |
+| 1. [A first translation](samples/basics/Program.cs) | 14,552 B | 1,118,704 B | 4,608 B |
+| 2. [Console escapes](test/programs/console-escapes.cs) | 14,552 B | 1,118,704 B | 4,608 B |
+| 3. [Loops and branches](test/programs/control-flow.cs) | 14,552 B | 1,118,704 B | 4,608 B |
+| 4. [Integer overflow](test/programs/overflow.cs) | 14,552 B | 1,118,688 B | 4,608 B |
+| 5. [From classes to structs](samples/objects/Program.cs) | 14,552 B | 1,118,688 B | 4,608 B |
+| 6. [Defaults and struct copies](test/programs/struct-defaults.cs) | 14,552 B | 1,118,688 B | 4,608 B |
+| 7. [Same name, different receiver](test/programs/receiver-dispatch.cs) | 14,552 B | 1,118,688 B | 4,608 B |
+| 8. [Evaluation order with side effects](test/programs/receiver-order.cs) | 14,552 B | 1,118,688 B | 4,608 B |
+
+Measured on Ubuntu 22.04 x64 using the pinned Goose toolchain with GCC 11.4 and the .NET SDK 10.0.400. The native columns show stripped executable file sizes. Both executables include the runtime code they need and use the host system libraries. The managed DLL is shown separately and requires an installed .NET runtime. All three builds produced identical stdout for each fixture.
+
+To reproduce, put one C# fixture at `Program.cs` in a clean directory with a copy of [the test project](test/Sample.csproj), the generated `program.goose`, and [the DotGoose library](lib/dotgoose.goose). Then run the following commands.
+
+```sh
+goose build program.goose --standalone --cc gcc -o goose-app
+dotnet publish Sample.csproj -c Release -r linux-x64 -p:PublishAot=true \
+    -p:OptimizationPreference=Size -p:StripSymbols=true -p:InvariantGlobalization=true -o aot
+dotnet build Sample.csproj -c Release -o managed
+strip --strip-all goose-app aot/Sample
+stat -c '%n %s bytes' goose-app aot/Sample managed/Sample.dll
+```
 
 ## Run a conversion sample
 

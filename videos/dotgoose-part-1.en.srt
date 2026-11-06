@@ -1,239 +1,255 @@
 1
-00:00:00,300 --> 00:00:06,791
+00:00:00,300 --> 00:00:06,581
 This is Dot Goose, part one. We will follow eight
-small C sharp programs through the Goose
+small C sharp programs through the Goose compiler.
 
 2
-00:00:06,791 --> 00:00:07,440
-compiler.
+00:00:06,761 --> 00:00:15,410
+For each numbered example, compare the code and the
+output. At the end, we will compare executable sizes.
 
 3
-00:00:07,570 --> 00:00:14,099
-For each program, compare the source and the
-generated code, then look at what both versions
+00:00:16,050 --> 00:00:17,652
+One: A first translation.
 
 4
-00:00:14,099 --> 00:00:15,163
-actually print.
+00:00:17,832 --> 00:00:22,836
+This program prints Dot Goose, starts with forty, and
+adds two.
 
 5
-00:00:15,758 --> 00:00:20,379
-This program prints Dot Goose, starts with forty,
-and adds two.
+00:00:23,016 --> 00:00:28,206
+The C sharp integer becomes I thirty two in Goose, and
+Write Line becomes print.
 
 6
-00:00:20,509 --> 00:00:25,734
-The C sharp integer becomes I thirty two in
-Goose, and Write Line becomes print.
-
-7
-00:00:26,300 --> 00:00:30,642
+00:00:28,842 --> 00:00:32,731
 The condition still checks for forty-two before
 printing the value.
 
+7
+00:00:32,911 --> 00:00:39,424
+Both runs also print the wrapped result from the final
+addition. We will unpack that in chapter four.
+
 8
-00:00:30,772 --> 00:00:37,368
-Both runs also print the wrapped result from the
-final addition. We will unpack that in chapter
+00:00:40,050 --> 00:00:41,826
+Two: Console escapes.
 
 9
-00:00:37,368 --> 00:00:37,715
-four.
-
-10
-00:00:38,300 --> 00:00:41,133
+00:00:42,006 --> 00:00:44,932
 Look at the strings between the quotation marks.
 
+10
+00:00:45,112 --> 00:00:53,285
+Only the call changes. The escape sequences for the
+tab, quotes, backslash, and line breaks carry through.
+
 11
-00:00:41,263 --> 00:00:47,837
-Only the call changes. The escape sequences for
-the tab, quotes, backslash, and line breaks carry
+00:00:53,925 --> 00:01:00,148
+The first print writes an empty line. Later, carriage
+return and newline remain distinct.
 
 12
-00:00:47,837 --> 00:00:48,380
-through.
+00:01:00,328 --> 00:01:06,145
+The test compares raw output bytes, so even a change a
+terminal might hide would fail.
 
 13
-00:00:48,967 --> 00:00:54,458
-The first print writes an empty line. Later,
-carriage return and newline remain distinct.
+00:01:06,758 --> 00:01:09,231
+Three: Loops and branches.
 
 14
-00:00:54,588 --> 00:00:59,871
-The test compares raw output bytes, so even a
-change a terminal might hide would fail.
+00:01:09,411 --> 00:01:15,646
+The index starts at zero and stops before five. The
+running total starts at negative two.
 
 15
-00:01:00,467 --> 00:01:06,562
-The index starts at zero and stops before five.
-The running total starts at negative two.
+00:01:15,826 --> 00:01:21,166
+At index two, the else branch changes the Boolean flag
+instead of adding to the total.
 
 16
-00:01:06,692 --> 00:01:12,416
-At index two, the else branch changes the Boolean
-flag instead of adding to the total.
+00:01:21,800 --> 00:01:27,977
+The remaining additions take the total to six. The
+final condition checks the total and the flag.
 
 17
-00:01:13,008 --> 00:01:18,225
-The remaining additions take the total to six.
-The final condition checks the total and the
+00:01:28,157 --> 00:01:32,580
+Goose keeps the same loop and branch structure. Both
+runs print six.
 
 18
-00:01:18,225 --> 00:01:18,511
-flag.
+00:01:33,217 --> 00:01:34,900
+Four: Integer overflow.
 
 19
-00:01:18,641 --> 00:01:22,926
-Goose keeps the same loop and branch structure.
-Both runs print six.
+00:01:35,080 --> 00:01:39,480
+This example adds one to the largest signed thirty-
+two-bit integer.
 
 20
-00:01:23,508 --> 00:01:28,280
-This example adds one to the largest signed
-thirty-two-bit integer.
+00:01:39,660 --> 00:01:44,780
+Unchecked C sharp arithmetic wraps around, giving the
+smallest signed integer.
 
 21
-00:01:28,410 --> 00:01:33,437
-Unchecked C sharp arithmetic wraps around, giving
-the smallest signed integer.
+00:01:45,425 --> 00:01:51,485
+The Dot Goose helper adds the same bits as unsigned
+values, then casts back to a signed integer.
 
 22
-00:01:34,008 --> 00:01:40,133
-The Dot Goose helper adds the same bits as
-unsigned values, then casts back to a signed
+00:01:51,665 --> 00:01:56,936
+That preserves all three results even when Goose runs
+with debug checks enabled.
 
 23
-00:01:40,133 --> 00:01:40,696
-integer.
+00:01:57,550 --> 00:01:59,988
+Five: From classes to structs.
 
 24
-00:01:40,826 --> 00:01:46,178
-That preserves all three results even when Goose
-runs with debug checks enabled.
+00:02:00,168 --> 00:02:06,506
+The scoped Counter class becomes a Goose struct. The
+factory named new Counter takes the constructor
 
 25
-00:01:46,758 --> 00:01:51,735
-The scoped Counter class becomes a Goose struct.
-The factory named new Counter takes the
+00:02:06,506 --> 00:02:07,076
+argument.
 
 26
-00:01:51,735 --> 00:01:52,923
-constructor argument.
-
-27
-00:01:53,053 --> 00:01:59,172
+00:02:07,256 --> 00:02:13,270
 Add still looks like a method call. Its writable
 receiver lets it update the counter in place.
 
+27
+00:02:13,883 --> 00:02:18,910
+Point is a value type. Copying it gives the program an
+independent value.
+
 28
-00:01:59,758 --> 00:02:04,507
-Point is a value type. Copying it gives the
-program an independent value.
+00:02:19,090 --> 00:02:26,479
+Changing the copy leaves the original sum at thirteen.
+The copy prints five, after the counter prints forty-
 
 29
-00:02:04,637 --> 00:02:10,801
-Changing the copy leaves the original sum at
-thirteen. The copy prints five, after the counter
+00:02:26,479 --> 00:02:26,753
+two.
 
 30
-00:02:10,801 --> 00:02:11,916
-prints forty-two.
+00:02:27,383 --> 00:02:29,845
+Six: Defaults and struct copies.
 
 31
-00:02:12,508 --> 00:02:18,863
-The explicit Point constructor sets X and marks
-the point ready. The parameterless construction
+00:02:30,025 --> 00:02:36,724
+The explicit Point constructor sets X and marks the
+point ready. The parameterless construction uses
 
 32
-00:02:18,863 --> 00:02:19,799
-uses defaults.
+00:02:36,724 --> 00:02:37,327
+defaults.
 
 33
-00:02:19,929 --> 00:02:23,981
-That means zero for both coordinates and false
-for the ready flag.
+00:02:37,507 --> 00:02:42,186
+That means zero for both coordinates and false for the
+ready flag.
 
 34
-00:02:24,550 --> 00:02:30,091
-Changing the blank point's Y coordinate does not
-set its flag. Its Value method still returns
+00:02:42,800 --> 00:02:49,627
+Changing the blank point's Y coordinate does not set
+its flag. Its Value method still returns negative one.
 
 35
-00:02:30,091 --> 00:02:30,866
-negative one.
+00:02:49,807 --> 00:02:56,622
+The assigned copy can change independently. The final
+values are seven, negative one, and nine.
 
 36
-00:02:30,996 --> 00:02:37,288
-The assigned copy can change independently. The
-final values are seven, negative one, and nine.
+00:02:57,258 --> 00:03:00,614
+Seven: Same name, different receiver.
 
 37
-00:02:37,883 --> 00:02:44,086
-Point and Counter each declare a method called
-Read. The receiver type tells the compiler which
+00:03:00,794 --> 00:03:07,347
+Point and Counter each declare a method called Read.
+The receiver type tells the compiler which method to
 
 38
-00:02:44,086 --> 00:02:45,000
-method to use.
+00:03:07,347 --> 00:03:07,597
+use.
 
 39
-00:02:45,130 --> 00:02:49,403
+00:03:07,777 --> 00:03:12,061
 Goose represents those methods as functions with
 distinct receiver types.
 
 40
-00:02:49,967 --> 00:02:56,608
-Point reads seven. Counter reads twenty-one, and
-Read Twice calls the counter version two times.
+00:03:12,675 --> 00:03:19,165
+Point reads seven. Counter reads twenty-one, and Read
+Twice calls the counter version two times.
 
 41
-00:02:56,738 --> 00:03:02,280
-Setting the enabled flag to false changes the
-counter to negative one. Both runs produce the
+00:03:19,345 --> 00:03:26,357
+Setting the enabled flag to false changes the counter
+to negative one. Both runs produce the same sequence.
 
 42
-00:03:02,280 --> 00:03:03,123
-same sequence.
+00:03:27,008 --> 00:03:29,888
+Eight: Evaluation order with side effects.
 
 43
-00:03:03,717 --> 00:03:09,533
-The counter starts at ten. The left side of the
-sum calls Next first, printing eleven.
+00:03:30,068 --> 00:03:35,907
+The counter starts at ten. The left side of the sum
+calls Next first, printing eleven.
 
 44
-00:03:09,663 --> 00:03:16,107
+00:03:36,087 --> 00:03:41,846
 Then the two arguments to Take call Next again,
 printing twelve and thirteen in that order.
 
 45
-00:03:16,675 --> 00:03:22,143
-Take prints its first argument, twelve, and
-returns its second argument, thirteen.
+00:03:42,467 --> 00:03:48,306
+Take prints its first argument, twelve, and returns
+its second argument, thirteen.
 
 46
-00:03:22,273 --> 00:03:26,348
+00:03:48,486 --> 00:03:53,212
 The sum prints twenty-four, and the counter still
 holds thirteen.
 
 47
-00:03:26,478 --> 00:03:31,555
-Matching only the final value would miss a
-reordered print. The test compares the entire
+00:03:53,392 --> 00:04:00,033
+Matching only the final value would miss a reordered
+print. The test compares the entire sequence.
 
 48
-00:03:31,555 --> 00:03:32,074
-sequence.
+00:04:00,675 --> 00:04:05,574
+Here are the sizes for all eight examples, built for
+Linux on x sixty-four.
 
 49
-00:03:32,675 --> 00:03:38,889
-All eight programs matched in the test suite,
-both as Goose executables and in Goose debug
+00:04:05,754 --> 00:04:12,303
+The first two columns compare stripped native
+executables. Each includes the runtime code the
 
 50
-00:03:38,889 --> 00:03:39,235
-mode.
+00:04:12,303 --> 00:04:13,289
+program needs.
 
 51
-00:03:39,365 --> 00:03:44,194
-You can find the source, the compiler, and the
-tests in the Dot Goose repository.
+00:04:13,469 --> 00:04:18,090
+The dot net build uses Native A O T, optimized for
+size.
+
+52
+00:04:18,270 --> 00:04:24,806
+The managed D L L is listed separately. That file uses
+an installed dot net runtime.
+
+53
+00:04:25,425 --> 00:04:32,298
+All eight programs matched in the test suite, both as
+Goose executables and in Goose debug mode.
+
+54
+00:04:32,478 --> 00:04:39,096
+The source, compiler, test suite, and exact size
+measurements are in the Dot Goose repository.
