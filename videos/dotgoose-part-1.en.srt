@@ -1,0 +1,239 @@
+1
+00:00:00,300 --> 00:00:06,791
+This is Dot Goose, part one. We will follow eight
+small C sharp programs through the Goose
+
+2
+00:00:06,791 --> 00:00:07,440
+compiler.
+
+3
+00:00:07,570 --> 00:00:14,099
+For each program, compare the source and the
+generated code, then look at what both versions
+
+4
+00:00:14,099 --> 00:00:15,163
+actually print.
+
+5
+00:00:15,758 --> 00:00:20,379
+This program prints Dot Goose, starts with forty,
+and adds two.
+
+6
+00:00:20,509 --> 00:00:25,734
+The C sharp integer becomes I thirty two in
+Goose, and Write Line becomes print.
+
+7
+00:00:26,300 --> 00:00:30,642
+The condition still checks for forty-two before
+printing the value.
+
+8
+00:00:30,772 --> 00:00:37,368
+Both runs also print the wrapped result from the
+final addition. We will unpack that in chapter
+
+9
+00:00:37,368 --> 00:00:37,715
+four.
+
+10
+00:00:38,300 --> 00:00:41,133
+Look at the strings between the quotation marks.
+
+11
+00:00:41,263 --> 00:00:47,837
+Only the call changes. The escape sequences for
+the tab, quotes, backslash, and line breaks carry
+
+12
+00:00:47,837 --> 00:00:48,380
+through.
+
+13
+00:00:48,967 --> 00:00:54,458
+The first print writes an empty line. Later,
+carriage return and newline remain distinct.
+
+14
+00:00:54,588 --> 00:00:59,871
+The test compares raw output bytes, so even a
+change a terminal might hide would fail.
+
+15
+00:01:00,467 --> 00:01:06,562
+The index starts at zero and stops before five.
+The running total starts at negative two.
+
+16
+00:01:06,692 --> 00:01:12,416
+At index two, the else branch changes the Boolean
+flag instead of adding to the total.
+
+17
+00:01:13,008 --> 00:01:18,225
+The remaining additions take the total to six.
+The final condition checks the total and the
+
+18
+00:01:18,225 --> 00:01:18,511
+flag.
+
+19
+00:01:18,641 --> 00:01:22,926
+Goose keeps the same loop and branch structure.
+Both runs print six.
+
+20
+00:01:23,508 --> 00:01:28,280
+This example adds one to the largest signed
+thirty-two-bit integer.
+
+21
+00:01:28,410 --> 00:01:33,437
+Unchecked C sharp arithmetic wraps around, giving
+the smallest signed integer.
+
+22
+00:01:34,008 --> 00:01:40,133
+The Dot Goose helper adds the same bits as
+unsigned values, then casts back to a signed
+
+23
+00:01:40,133 --> 00:01:40,696
+integer.
+
+24
+00:01:40,826 --> 00:01:46,178
+That preserves all three results even when Goose
+runs with debug checks enabled.
+
+25
+00:01:46,758 --> 00:01:51,735
+The scoped Counter class becomes a Goose struct.
+The factory named new Counter takes the
+
+26
+00:01:51,735 --> 00:01:52,923
+constructor argument.
+
+27
+00:01:53,053 --> 00:01:59,172
+Add still looks like a method call. Its writable
+receiver lets it update the counter in place.
+
+28
+00:01:59,758 --> 00:02:04,507
+Point is a value type. Copying it gives the
+program an independent value.
+
+29
+00:02:04,637 --> 00:02:10,801
+Changing the copy leaves the original sum at
+thirteen. The copy prints five, after the counter
+
+30
+00:02:10,801 --> 00:02:11,916
+prints forty-two.
+
+31
+00:02:12,508 --> 00:02:18,863
+The explicit Point constructor sets X and marks
+the point ready. The parameterless construction
+
+32
+00:02:18,863 --> 00:02:19,799
+uses defaults.
+
+33
+00:02:19,929 --> 00:02:23,981
+That means zero for both coordinates and false
+for the ready flag.
+
+34
+00:02:24,550 --> 00:02:30,091
+Changing the blank point's Y coordinate does not
+set its flag. Its Value method still returns
+
+35
+00:02:30,091 --> 00:02:30,866
+negative one.
+
+36
+00:02:30,996 --> 00:02:37,288
+The assigned copy can change independently. The
+final values are seven, negative one, and nine.
+
+37
+00:02:37,883 --> 00:02:44,086
+Point and Counter each declare a method called
+Read. The receiver type tells the compiler which
+
+38
+00:02:44,086 --> 00:02:45,000
+method to use.
+
+39
+00:02:45,130 --> 00:02:49,403
+Goose represents those methods as functions with
+distinct receiver types.
+
+40
+00:02:49,967 --> 00:02:56,608
+Point reads seven. Counter reads twenty-one, and
+Read Twice calls the counter version two times.
+
+41
+00:02:56,738 --> 00:03:02,280
+Setting the enabled flag to false changes the
+counter to negative one. Both runs produce the
+
+42
+00:03:02,280 --> 00:03:03,123
+same sequence.
+
+43
+00:03:03,717 --> 00:03:09,533
+The counter starts at ten. The left side of the
+sum calls Next first, printing eleven.
+
+44
+00:03:09,663 --> 00:03:16,107
+Then the two arguments to Take call Next again,
+printing twelve and thirteen in that order.
+
+45
+00:03:16,675 --> 00:03:22,143
+Take prints its first argument, twelve, and
+returns its second argument, thirteen.
+
+46
+00:03:22,273 --> 00:03:26,348
+The sum prints twenty-four, and the counter still
+holds thirteen.
+
+47
+00:03:26,478 --> 00:03:31,555
+Matching only the final value would miss a
+reordered print. The test compares the entire
+
+48
+00:03:31,555 --> 00:03:32,074
+sequence.
+
+49
+00:03:32,675 --> 00:03:38,889
+All eight programs matched in the test suite,
+both as Goose executables and in Goose debug
+
+50
+00:03:38,889 --> 00:03:39,235
+mode.
+
+51
+00:03:39,365 --> 00:03:44,194
+You can find the source, the compiler, and the
+tests in the Dot Goose repository.

@@ -4,6 +4,12 @@ DotGoose converts C# into readable [Goose](https://github.com/aardappel/goose) s
 
 The starter translates a single C# file. It supports scalar code, basic control flow, selected console calls, value-type structs and scoped sealed classes. In the [objects sample](samples/objects/Program.cs), `new Counter(40)` becomes `new_Counter(40)` and `counter.Add(2)` keeps the same call shape. [See the Goose output.](samples/objects/expected.goose)
 
+## Explainer video
+
+[Watch Part 1 · C# to Goose (MP4)](videos/dotgoose-part-1.mp4?raw=1) · [English captions](videos/dotgoose-part-1.en.srt)
+
+Eight narrated examples compare C# with the generated Goose and show the output each program produces in both runtimes. The walkthrough starts with console output and ends with receiver dispatch and evaluation order.
+
 ## Run a conversion sample
 
 The starter compiler runs with the [pinned Goose toolchain](spec/README.md). Run this from the repository root.
