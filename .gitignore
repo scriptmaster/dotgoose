@@ -1,0 +1,4 @@
+bin/
+obj/
+/samples/*/actual.goose
+/samples/*/dotgoose.goose
