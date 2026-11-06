@@ -1,10 +1,12 @@
 # Starter language profile
 
+The reference converter currently implements this profile. The native compiler must meet the same conversion contract before taking over the CLI.
+
 ## Input and output
 
 Run `dotgoose input.cs [--output output.goose]`. With no output path the compiler writes Goose to stdout. The program reads one UTF-8 C# compilation unit with optional `using System;` and exactly one explicit `static class Program` containing only `static void Main()`. Additional top-level declarations can be simple nonempty structs or sealed classes. Source compilation uses regular C# and the host framework references. Project loading, implicit usings, project-specific defines and source generators are later work.
 
-Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for invalid invocation or file errors. Preserve Roslyn errors. Report unsupported constructs with `DG0001` and a source position. Translation errors leave stdout empty and any existing output file intact. Output uses UTF-8, LF, four-space indentation and a final newline.
+Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for invalid invocation or file errors. Report invalid source with compiler diagnostics and unsupported constructs with `DG0001` and a source position. Translation errors leave stdout empty and any existing output file intact. Output uses UTF-8, LF, four-space indentation and a final newline.
 
 ## Values and statements
 
@@ -27,7 +29,7 @@ A C# struct becomes a Goose struct. A sealed class can use the same representati
 
 Types have instance fields of `int` or `bool` without field initializers. One optional explicit constructor has scalar parameters and no initializer clause. A constructor becomes `new_Type(...)`, which initializes fields to C# defaults, runs the original body against `receiver`, and returns the finished value. An implicit parameterless constructor becomes a struct literal with default field values. `new Type(...)` is supported in local initializers. Object initializers and target-typed `new` require separate rules.
 
-Instance methods become Goose functions with a writable `receiver: Type&` receiver and keep `s.Method(...)` call syntax through Goose's receiver-call rule. Methods have scalar parameters and return scalars or void. Calls must resolve to an in-source method on the exact receiver type with positional arguments. Access modifiers are validated by Roslyn, then dropped from the closed program. Inheritance, interfaces, readonly storage, overloads within a type, recursion and implicit conversions beyond identity are outside the starter profile.
+Instance methods become Goose functions with a writable `receiver: Type&` receiver and keep `s.Method(...)` call syntax through Goose's receiver-call rule. Methods have scalar parameters and return scalars or void. Calls must resolve to an in-source method on the exact receiver type with positional arguments. Validate access modifiers before dropping them from the closed program. Inheritance, interfaces, readonly storage, overloads within a type, recursion and implicit conversions beyond identity are outside the starter profile.
 
 The starter accepts Goose-compatible ASCII identifiers. Type and instance method names begin with an uppercase letter. It reserves Goose keywords, the generated `receiver` and `main` identifiers, the `new_` prefix, and names used by emitted library calls. Later profiles require deterministic symbol mangling, including namespace, overload and generic identities.
 
