@@ -1,24 +1,22 @@
 # Starter language profile
 
-The reference converter currently implements this profile. The native compiler must meet the same conversion contract before taking over the CLI.
-
 ## Input and output
 
-Run `dotgoose input.cs [--output output.goose]`. With no output path the compiler writes Goose to stdout. The program reads one UTF-8 C# compilation unit with optional `using System;` and exactly one explicit `static class Program` containing only `static void Main()`. Additional top-level declarations can be simple nonempty structs or sealed classes. Source compilation uses regular C# and the host framework references. Project loading, implicit usings, project-specific defines and source generators are later work.
+Run `goose run compiler/native/dotgoose.goose -- input.cs [--output output.goose]`. With no output path the compiler writes Goose to stdout. The program reads one UTF-8 C# compilation unit with optional `using System;` and exactly one explicit `static class Program` containing only `static void Main()`. Additional top-level declarations can be simple nonempty structs or sealed classes. The native binder uses source declarations and the supported console signatures. Project loading, implicit usings, project-specific defines and source generators are later work.
 
-Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for invalid invocation or file errors. Report invalid source with compiler diagnostics and unsupported constructs with `DG0001` and a source position. Translation errors leave stdout empty and any existing output file intact. Output uses UTF-8, LF, four-space indentation and a final newline.
+Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for invalid invocation or file errors. Lexical and syntax failures report `DG1001` and `DG1002`. Binding and lowering failures report `DG0001`. Diagnostics include the source position. Translation errors leave stdout empty and any existing output file intact. Output uses UTF-8, LF, four-space indentation and a final newline.
 
 ## Values and statements
 
 | C# | Goose | Starter rules |
 | --- | --- | --- |
 | `int`, `bool`, `void` | `i32`, `bool`, omitted result | Scalar declarations carry explicit types to avoid Goose literal inference. |
-| Integer and Boolean literals | Canonical decimal and Boolean literals | Integer constants may include a unary minus. |
-| String literals | Goose UTF-8 literals | Only as direct arguments to the supported string overload of `Console.WriteLine`. Printable ASCII plus tab, LF and CR. |
+| Decimal integer and Boolean literals | Canonical decimal and Boolean literals | An integer literal may have a leading unary minus. |
+| String literals | Goose UTF-8 literals | Regular printable ASCII strings with quote, backslash, tab, LF and CR escapes. Use them as direct arguments to the string overload of `Console.WriteLine`. |
 | Initialized locals and simple assignments | `var` and `=` | Assign scalar locals or fields, or whole struct locals. Struct assignment copies the value. |
-| `+` on `int` | `dotgoose::add_i32(a, b)` | Preserve unchecked 32-bit wrap in every Goose build. Explicit checked or unchecked blocks and expressions are outside the starter profile. |
+| `+` on `int` | `dotgoose::add_i32(a, b)` | Reject overflowing compile-time constants. Preserve unchecked 32-bit wrap for runtime values in every Goose build. Explicit checked or unchecked blocks and expressions are outside the starter profile. |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Corresponding Goose operators | Identical scalar types. Ordered comparisons require integers. |
-| Braced `if`, `else`, `while`, `return` | Corresponding Goose statements | Branch and loop bodies require braces. |
+| Braced `if`, `else`, `while`, `return` | Corresponding Goose statements | Branch and loop bodies require braces. Value-returning methods require an explicit return on all structural paths, independent of constant-condition reachability. |
 | `System.Console.WriteLine(int/string)` | `print(value)` | Matches the bound overload. Integer output uses the invariant decimal form. Sample parity is defined under invariant culture and LF output. |
 
 Directives and source comments have different roles. Directives require project-level policy and are rejected. Source comments are omitted in the starter profile. Unsupported statements and expressions are rejected even in unreachable code.

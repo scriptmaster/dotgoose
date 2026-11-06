@@ -11,6 +11,8 @@ struct SyntaxNode {
     first_token: i64,
     end_token: i64,
     subtree_start: i64,
+    first_child: i64,
+    next_sibling: i64,
 }
 
 fn is_reserved(word: const u8[:]) -> bool {
@@ -64,7 +66,14 @@ fn parse(source: const u8[:], tokens: const Token[:], nodes: SyntaxNode[>..]&) -
     }
 
     fn add(kind: SyntaxKind, start: i64, subtree: i64) {
-        nodes.push(SyntaxNode { kind, start, pos, subtree });
+        var child = nodes.len - 1;
+        var sibling = -1;
+        while child >= subtree {
+            nodes[child].next_sibling = sibling;
+            sibling = child;
+            child = nodes[child].subtree_start - 1;
+        }
+        nodes.push(SyntaxNode { kind, start, pos, subtree, sibling, -1 });
     }
 
     fn precedence() -> i64 {

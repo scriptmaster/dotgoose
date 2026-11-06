@@ -2,7 +2,7 @@
 
 DotGoose translates C# source to readable, compilable Goose source. Observable behavior takes precedence over line-by-line similarity. Where Goose can represent the same behavior directly, preserve source names, declaration order, and receiver-call syntax. Use the DotGoose library for semantic differences and curated .NET APIs. Require a source-located diagnostic whenever a translation rule is missing or its preconditions cannot be established.
 
-The target is [Aardappel Goose](https://github.com/aardappel/goose/tree/7b90f91d91845f4ef1712e16ed053f395e4e6e1c), pinned to revision `7b90f91d91845f4ef1712e16ed053f395e4e6e1c`. The native compiler implements the C# language in Goose and runs with the Goose toolchain alone. The existing .NET 10 and Roslyn converter serves as a reference for the starter profile during migration.
+The target is [Aardappel Goose](https://github.com/aardappel/goose/tree/7b90f91d91845f4ef1712e16ed053f395e4e6e1c), pinned to revision `7b90f91d91845f4ef1712e16ed053f395e4e6e1c`. The native compiler implements the starter profile in Goose and runs with the Goose toolchain alone. The differential suite uses .NET 10 to compile and run the original C# fixtures.
 
 - [Starter language profile](language.md) specifies the implemented single-file conversion.
 - [Native frontend](frontend.md) specifies the Goose-only compiler and its migration gates.
