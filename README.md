@@ -6,13 +6,15 @@ The starter translates a single C# file. It supports scalar code, basic control 
 
 For C# `int` addition, the compiler emits `x.add(y)` with `import .dotgoose;`. The library provides the `i32` overload and the qualified form `dotgoose::add(x, y)`. Both preserve unchecked 32-bit wrapping.
 
+The [strings sample](samples/strings/Program.cs) shows raw JSON literals and interpolation, with [generated Goose](samples/strings/expected.goose) and output checked against .NET. Both C# and Goose accept `"""{"status":"ok"}"""` directly. C# `$"Item {id}"` becomes Goose `str("Item ", id, "")`. The Boolean helper preserves C# `True` and `False` text, and the compiler preserves expression evaluation order.
+
 ## Explainer video
 
 https://github.com/user-attachments/assets/ba69e609-fb06-4d32-864e-c17db9d70af0
 
 [Download Part 1 · C# to Goose (MP4)](https://github.com/scriptmaster/dotgoose/raw/refs/heads/main/videos/dotgoose-part-1.mp4) · [English captions](videos/dotgoose-part-1.en.srt)
 
-Eight numbered examples compare C# with the generated Goose and show the matching output. The final sections compare executable sizes and explain what each build needs to run in a container.
+Nine numbered examples compare C# with the generated Goose and show matching output, including raw strings and interpolation. The final sections compare executable sizes and explain what each build needs to run in a container.
 
 ### Part 1 binary sizes
 
@@ -26,11 +28,12 @@ Eight numbered examples compare C# with the generated Goose and show the matchin
 | 6. [Defaults and struct copies](test/programs/struct-defaults.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
 | 7. [Same name, different receiver](test/programs/receiver-dispatch.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
 | 8. [Evaluation order with side effects](test/programs/receiver-order.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 9. [Raw strings and interpolation](samples/strings/Program.cs) | 18.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 5.6 KB |
 
 Measured on Ubuntu 22.04 x64 with the pinned Goose toolchain, GCC 11.4, and .NET SDK 10.0.400. Sizes are decimal KB and MB, rounded to one decimal place. All five builds produced the same stdout for each example.
 
 - **Goose with system libc** bundles the Goose runtime and dynamically links to glibc. It needs `libc.so.6` and the system loader at `/lib64/ld-linux-x86-64.so.2`.
-- **Goose fully static** links the Goose runtime and glibc into the executable. `readelf` found no ELF interpreter or shared-library dependencies. All eight ran in a Linux chroot containing only the executable. These console programs can use a Docker `FROM scratch` image on compatible Linux x64 Kubernetes nodes. Backend programs can still need files such as TLS certificates. [Docker scratch images](https://docs.docker.com/build/building/base-images/#create-a-minimal-base-image-using-scratch)
+- **Goose fully static** links the Goose runtime and glibc into the executable. `readelf` found no ELF interpreter or shared-library dependencies. All nine ran in a Linux chroot containing only the executable. These console programs can use a Docker `FROM scratch` image on compatible Linux x64 Kubernetes nodes. Backend programs can still need files such as TLS certificates. [Docker scratch images](https://docs.docker.com/build/building/base-images/#create-a-minimal-base-image-using-scratch)
 - **.NET Native AOT** includes the .NET runtime code the app needs and uses system libraries. **.NET self-contained single-file** bundles the .NET runtime into one compressed executable, extracts native runtime libraries at startup, and runs the managed code with the JIT. Both run without a separately installed .NET runtime. The managed DLL requires one. [Native AOT](https://learn.microsoft.com/dotnet/core/deploying/native-aot/) · [Single-file deployment](https://learn.microsoft.com/dotnet/core/deploying/single-file/)
 
 To reproduce, put one C# fixture at `Program.cs` in a clean directory with a copy of [the test project](test/Sample.csproj), the generated `program.goose`, and [the DotGoose library](lib/dotgoose.goose). Then run these commands.
@@ -61,7 +64,7 @@ Six paired ASP.NET Core and Goose programs cover health checks, route and query 
 
 The [web comparison](samples/web/README.md#part-2-measurements) reports application lines, executable sizes, CPU time, and peak RAM. Every build was checked against the same HTTP response contract. The recorded measurements use 2,000 sequential loopback requests per run.
 
-The [enhanced ports](samples/web/README.md#enhanced-ports) use the DotGoose web library. All six fit within the ASP.NET Core application line counts. The MVC port compiles the same Razor template into a Goose function and reuses it for each request.
+Each [web example](samples/web/README.md#application-startup) uses the DotGoose builder API with `WebApplication.CreateSlimBuilder(args)`, `builder.Logging.ClearProviders()`, `builder.Build()`, route registration, and `app.Run()`. The application statements live in `program_main(args)`, called once from `main()`. The MVC example uses `CreateBuilder`, controller registration, and the same Razor template compiled into a reusable Goose function. The line-count table includes complete source totals and identifies the four Goose entry-point lines separately.
 
 ## Run a conversion sample
 

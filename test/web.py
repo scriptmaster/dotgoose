@@ -18,7 +18,6 @@ ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "samples" / "web"
 SHARED = WEB / "shared"
 WEB_LIBRARY = ROOT / "lib" / "web"
-ENHANCED = WEB / "enhanced"
 GOOSE = os.environ.get("GOOSE", "goose")
 JSON = "application/json"
 TEXT = "text/plain"
@@ -82,7 +81,7 @@ CASES = {
     ),
 }
 
-ENHANCED_CASES = {
+ADDITIONAL_CASES = {
     "01-health": (Case("POST", "/healthz", 405, expect=(("Allow", "GET"),)),),
     "02-routing": (Case("GET", "/api/items/2147483648", 404),),
     "04-json": (
@@ -120,6 +119,33 @@ def razor_command(template, name, target):
     return [GOOSE, "run", ROOT / "compiler" / "native" / "dotgoose.goose", "--", "razor",
             template, name, "--output", target]
 
+def web_command(source, target):
+    return [GOOSE, "run", ROOT / "compiler" / "native" / "dotgoose.goose", "--", "web",
+            source, "--output", target]
+
+def verify_host(work):
+    (work / "lib").symlink_to(ROOT / "lib", target_is_directory=True)
+    source_dir = work / "test"
+    source_dir.mkdir()
+    source = Path(shutil.copy2(ROOT / "test" / "web-host.goose", source_dir))
+    generated = source_dir / "compiled.goose"
+    run(web_command(source, generated), work)
+    c_file, executable = work / "host.c", work / "host-test"
+    run([GOOSE, "--standalone", "-o", c_file, generated], work)
+    run(["gcc", "-O2", "-Wno-attributes", c_file, "-o", executable, "-lm", "-pthread"], work)
+    cases = (CASES["01-health"][0], Case("GET", "/mutated", 404),
+             Case("GET", "/value", 200, '{"step":1}', JSON), CASES["01-health"][0])
+    drive(Variant("host", executable), cases, work, len(cases), False)
+    assert (work / "server.log").read_text() == "startup-once\n"
+
+    before = generated.read_bytes()
+    source.write_text("fn main() { app.Run(); app.Run(); }\n")
+    failure = subprocess.run(web_command(source, generated), cwd=work, env=ENV,
+                             capture_output=True, text=True, timeout=30)
+    assert failure.returncode == 1 and "DG2101: one application Run call is supported" in failure.stderr
+    assert not failure.stdout and generated.read_bytes() == before
+    print("PASS host: startup once, logging snapshot, route ownership, middleware and registration order, diagnostics", flush=True)
+
 def verify_view_compiler(work):
     (work / "lib").symlink_to(ROOT / "lib", target_is_directory=True)
     template = work / "Escaping.cshtml"
@@ -152,28 +178,23 @@ fn main() {
     assert generated.read_bytes() == before
     print("PASS Razor: compiled interpolation, HTML escaping, @@, and source diagnostics", flush=True)
 
-def build(name, work, benchmark, enhanced):
+def build(name, work, benchmark):
     source = WEB / name
     src = work / "src"
     shutil.copytree(source, src)
     shutil.copy2(SHARED / "Web.csproj", src)
     c_file = work / "generated.c"
-    if enhanced:
-        goose_source = ENHANCED / name / "main.goose"
-        if name == "06-mvc":
-            staged = work / "goose-source"
-            view_root = staged / "samples" / "web" / "enhanced" / name
-            view_root.mkdir(parents=True)
-            (staged / "lib").symlink_to(ROOT / "lib", target_is_directory=True)
-            goose_source = Path(shutil.copy2(goose_source, view_root))
-            run(razor_command(source / "Views" / "Catalog" / "Show.cshtml", "render_Show",
-                              view_root / "view.goose"), work)
-        run([GOOSE, "--standalone", "-o", c_file, goose_source], work)
-    else:
-        shutil.copy2(WEB_LIBRARY / "http.goose", src)
-        shutil.copy2(ROOT / "lib" / "dotgoose.goose", src)
-        run([GOOSE, "--standalone", "--include", WEB_LIBRARY / "transport.h",
-             "-o", c_file, "main.goose"], src)
+    staged = work / "goose-source"
+    view_root = staged / "samples" / "web" / name
+    view_root.mkdir(parents=True)
+    (staged / "lib").symlink_to(ROOT / "lib", target_is_directory=True)
+    goose_source = Path(shutil.copy2(source / "main.goose", view_root))
+    if name == "06-mvc":
+        run(razor_command(source / "Views" / "Catalog" / "Show.cshtml", "render_Show",
+                          view_root / "view.goose"), work)
+    compiled = view_root / "compiled.goose"
+    run(web_command(goose_source, compiled), work)
+    run([GOOSE, "--standalone", "-o", c_file, compiled], work)
     gcc = ["gcc", "-O2", "-s", "-Wno-attributes", c_file]
     goose = work / "goose"
     run([*gcc, "-o", goose, "-lm", "-pthread"], work)
@@ -277,16 +298,17 @@ def main():
     parser.add_argument("--requests", type=int, default=2000, help="requests per measured run")
     parser.add_argument("--trials", type=int, default=3, help="measured runs per executable")
     parser.add_argument("--only", choices=CASES, help="run one example")
-    parser.add_argument("--enhanced", action="store_true", help="use the DotGoose web API and compiled Razor view")
     args = parser.parse_args()
     if args.requests < 1 or args.trials < 1:
         parser.error("requests and trials must be positive")
     results = []
     with tempfile.TemporaryDirectory(prefix="dotgoose-web-") as temp:
-        if args.enhanced:
-            razor_work = Path(temp) / "razor-test"
-            razor_work.mkdir()
-            verify_view_compiler(razor_work)
+        razor_work = Path(temp) / "razor-test"
+        razor_work.mkdir()
+        verify_view_compiler(razor_work)
+        host_work = Path(temp) / "host-test"
+        host_work.mkdir()
+        verify_host(host_work)
         for name, cases in CASES.items():
             if args.only and name != args.only:
                 continue
@@ -294,21 +316,19 @@ def main():
             work.mkdir()
             templates = list((WEB / name).rglob("*.cshtml"))
             dotnet_sources = [*templates, *(WEB / name).rglob("*.cs")]
-            goose_source = (ENHANCED if args.enhanced else WEB) / name / "main.goose"
-            goose_sources = [goose_source, *templates] if args.enhanced else [goose_source]
+            goose_source = WEB / name / "main.goose"
+            goose_sources = [goose_source, *templates]
             record = {
                 "example": name,
                 "dotnet_lines": sum(code_lines(path) for path in dotnet_sources),
                 "goose_lines": sum(code_lines(path) for path in goose_sources),
+                "goose_entry_scaffold_lines": 4,
                 "variants": {},
             }
-            if args.enhanced:
-                assert record["goose_lines"] <= record["dotnet_lines"], name
-                assert sum(len(path.read_text().splitlines()) for path in goose_sources) <= sum(
-                    len(path.read_text().splitlines()) for path in dotnet_sources), name
-                cases += ENHANCED_CASES.get(name, ())
-                print(f"LINES {name}: {record['goose_lines']} Goose / {record['dotnet_lines']} ASP.NET Core", flush=True)
-            for variant in build(name, work, args.benchmark is not None, args.enhanced):
+            assert record["goose_lines"] - record["goose_entry_scaffold_lines"] <= record["dotnet_lines"], name
+            cases += ADDITIONAL_CASES.get(name, ())
+            print(f"LINES {name}: {record['goose_lines']} Goose / {record['dotnet_lines']} ASP.NET Core", flush=True)
+            for variant in build(name, work, args.benchmark is not None):
                 variant_work = work / f"run-{variant.name}"
                 variant_work.mkdir()
                 drive(variant, cases, variant_work, len(cases), False)
@@ -324,9 +344,7 @@ def main():
                     print(f"MEASURE {name} / {variant.name}: {record['variants'][variant.name]}", flush=True)
             results.append(record)
     if args.benchmark:
-        files = ["http.goose", "transport.h"]
-        if args.enhanced:
-            files.extend(["web.goose", "web.build"])
+        files = ["http.goose", "transport.h", "web.goose", "web.build", "hosting.goose", "application.goose"]
         shared = sum(code_lines(WEB_LIBRARY/file) for file in files)
         result = {"requests":args.requests, "trials":args.trials, "shared_goose_lines":shared,
                   "add_library_lines":code_lines(ROOT/"lib"/"dotgoose.goose"), "examples":results}

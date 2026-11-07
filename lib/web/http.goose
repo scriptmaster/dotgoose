@@ -8,12 +8,8 @@ extern fn dg_header(key: const u8[:], out: u8[>..]&);
 extern fn dg_reply(client: i32, status: i32, mime: const u8[:], body: const u8[:],
                    request_id: const u8[:], stages: const u8[:], location: const u8[:]);
 
-fn serve<Handle>() {
-    let argv = args();
-    guard argv.len == 2 else { abort("usage: server PORT"); }
-    let port, valid = parse_int(argv[1]);
-    guard valid && port > 0 && port <= 65535 else { abort("invalid port"); }
-    let listener = dg_listen(port as i32);
+fn serve_port<Handle>(port: i32) {
+    let listener = dg_listen(port);
     guard listener >= 0 else { abort("could not listen on loopback"); }
 
     loop {
@@ -27,14 +23,6 @@ fn serve<Handle>() {
         dg_request(method, target, body);
         Handle(client, method[..], target[..], body[..]);
     }
-}
-
-fn respond(client: i32, status: i32, mime: const u8[:], body: const u8[:]) {
-    dg_reply(client, status, mime, body, "", "", "");
-}
-
-fn missing(client: i32) {
-    respond(client, 404, "", "");
 }
 
 fn path_of(target: u8[:]) -> u8[:] {

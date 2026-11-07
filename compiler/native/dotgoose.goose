@@ -1,9 +1,14 @@
 import .convert;
 import .diagnostic;
 import .razor;
+import .web;
 
 fn main() {
     let argv = args();
+    if argv.len > 2 && argv[1] == "web" {
+        web_compiler::run(argv[2..]);
+        return;
+    }
     if argv.len > 2 && argv[1] == "razor" {
         razor::run(argv[2..]);
         return;

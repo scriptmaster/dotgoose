@@ -2,4 +2,5 @@ bin/
 obj/
 /samples/*/actual.goose
 /samples/*/dotgoose.goose
-/samples/web/enhanced/06-mvc/view.goose
+/samples/web/06-mvc/view.goose
+/samples/web/*/compiled.goose

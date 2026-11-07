@@ -12,8 +12,25 @@ export GOOSE_HOME="$work/goose-home"
 bash "$root/test/syntax.sh"
 compiler=("$goose" run "$root/compiler/native/dotgoose.goose" --)
 positive=0
-for source in "$root"/samples/*/Program.cs "$root"/test/programs/*.cs; do
+printf '%s\r\n' \
+    'static class Program {' \
+    '    static void Main() {' \
+    '        System.Console.WriteLine("""' \
+    '            a' \
+    '            b' \
+    '            """);' \
+    '        System.Console.WriteLine(""""' \
+    '            A triple quote: """' \
+    '' \
+    '            end' \
+    '            """");' \
+    '    }' \
+    '}' > "$work/raw-newlines.cs"
+for source in "$root"/samples/*/Program.cs "$root"/test/programs/*.cs "$work/raw-newlines.cs"; do
     label=${source#"$root/"}
+    if [[ $source == "$work/raw-newlines.cs" ]]; then
+        label=test/generated/raw-newlines.cs
+    fi
     case_dir="$work/program-$positive"
     mkdir "$case_dir"
     cp "$source" "$case_dir/Program.cs"

@@ -2,6 +2,14 @@
 
 The [Part 2 web examples](../samples/web/README.md) provide hand-ported HTTP fixtures and measured baselines. They cover routing, middleware, JSON, request scope, and a controller/view flow. Their loopback transport is a demonstration, and automatic ASP.NET Core conversion remains a roadmap item.
 
+## Web application builder
+
+Goose applications put the original top-level startup statements in `program_main(args)`, called once by `main()`. `WebApplication.CreateSlimBuilder(args)` and `WebApplication.CreateBuilder(args)` return a builder with `Logging` and `Services`. `Logging.ClearProviders()` disables the console provider. `Build()` snapshots the configuration into an application. Route and middleware calls register handlers in declaration order. `app.Run()` starts the listener after registration. Startup code executes once, and request handlers execute for each matching request.
+
+The `dotgoose web INPUT.goose --output OUTPUT.goose` compiler pass lowers trailing-block `MapGet`, `MapPost`, and `Use` registrations to integer handler IDs and generates ordinary Goose handler functions and a dispatcher. It supplies the dispatcher to `app.Run()`. Handler bodies can use their request parameter, their own local variables, and module declarations. Goose checks generated functions and rejects references to startup locals. Registration paths are copied into application-owned storage. The initial implementation supports one application, up to 64 registrations, and paths of up to 256 bytes. This pass preserves builder and logging calls, so later hosting features have explicit configuration sites.
+
+`Services.AddScoped<T>()` supports one value-type service per application. The generated host initializes one `T` per request, and `req.GetRequiredService<T>()` returns that request's instance. `Services.AddControllersWithViews()` enables explicit controller registration through a program's `MapControllers(app)` function and the existing Razor compiler. Source and documentation report application statements and entry-point scaffolding separately, with complete source counts also shown.
+
 ## Razor view compilation
 
 `dotgoose razor TEMPLATE render_NAME [--output FILE]` compiles a UTF-8 template into a Goose function returning rendered HTML. The generated module uses the `web` package's HTML writer. The application imports and compiles that module alongside its model struct, then reuses the function for each request.

@@ -1,48 +1,49 @@
 {
   "requests": 2000,
   "trials": 3,
-  "shared_goose_lines": 188,
-  "add_library_lines": 7,
+  "shared_goose_lines": 413,
+  "add_library_lines": 8,
   "examples": [
     {
       "example": "01-health",
       "dotnet_lines": 5,
-      "goose_lines": 11,
+      "goose_lines": 9,
+      "goose_entry_scaffold_lines": 4,
       "variants": {
         "goose": {
-          "bytes": 22744,
-          "cpu_ms": 90,
-          "peak_rss_kib": 1808,
+          "bytes": 30936,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1912,
           "trials": [
             [
               90,
-              1860
+              1932
             ],
             [
-              90,
-              1808
+              100,
+              1912
             ],
             [
-              80,
-              1776
+              100,
+              1872
             ]
           ]
         },
         "goose-static": {
-          "bytes": 963056,
-          "cpu_ms": 80,
-          "peak_rss_kib": 1852,
+          "bytes": 967152,
+          "cpu_ms": 110,
+          "peak_rss_kib": 1772,
           "trials": [
             [
-              80,
-              1900
+              110,
+              1820
             ],
             [
-              80,
-              1852
+              140,
+              1772
             ],
             [
-              90,
+              100,
               1728
             ]
           ]
@@ -50,38 +51,38 @@
         "dotnet-aot": {
           "bytes": 9158240,
           "cpu_ms": 700,
-          "peak_rss_kib": 18444,
+          "peak_rss_kib": 18696,
           "trials": [
             [
-              710,
-              18440
-            ],
-            [
-              670,
-              18444
-            ],
-            [
               700,
-              18672
+              18696
+            ],
+            [
+              690,
+              18344
+            ],
+            [
+              770,
+              18784
             ]
           ]
         },
         "dotnet-single": {
           "bytes": 51642981,
-          "cpu_ms": 1370,
-          "peak_rss_kib": 105412,
+          "cpu_ms": 1440,
+          "peak_rss_kib": 105744,
           "trials": [
             [
-              1330,
-              105316
+              1390,
+              105744
             ],
             [
-              1410,
-              106148
+              1450,
+              105372
             ],
             [
-              1370,
-              105412
+              1440,
+              106448
             ]
           ]
         }
@@ -90,81 +91,82 @@
     {
       "example": "02-routing",
       "dotnet_lines": 14,
-      "goose_lines": 18,
+      "goose_lines": 17,
+      "goose_entry_scaffold_lines": 4,
       "variants": {
         "goose": {
-          "bytes": 26840,
-          "cpu_ms": 110,
-          "peak_rss_kib": 1824,
+          "bytes": 30936,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1816,
           "trials": [
             [
-              110,
-              1832
+              90,
+              1772
+            ],
+            [
+              90,
+              1932
             ],
             [
               100,
-              1824
-            ],
-            [
-              110,
-              1772
+              1816
             ]
           ]
         },
         "goose-static": {
           "bytes": 967152,
-          "cpu_ms": 100,
-          "peak_rss_kib": 1824,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1832,
           "trials": [
             [
-              130,
-              1820
-            ],
-            [
-              100,
-              1932
+              80,
+              1828
             ],
             [
               90,
-              1824
+              1840
+            ],
+            [
+              90,
+              1832
             ]
           ]
         },
         "dotnet-aot": {
           "bytes": 9148544,
-          "cpu_ms": 730,
-          "peak_rss_kib": 18572,
+          "cpu_ms": 750,
+          "peak_rss_kib": 18620,
           "trials": [
             [
-              730,
-              18572
+              690,
+              18716
             ],
             [
-              770,
-              18692
+              840,
+              18476
             ],
             [
-              710,
-              18488
+              750,
+              18620
             ]
           ]
         },
         "dotnet-single": {
           "bytes": 51643380,
-          "cpu_ms": 1430,
-          "peak_rss_kib": 106624,
+          "cpu_ms": 1460,
+          "peak_rss_kib": 107040,
           "trials": [
             [
-              1430,
-              106852
+              1410,
+              106632
             ],
             [
-              1470,
-              106624
+              1460,
+              107040
             ],
             [
-              1340,
-              106576
+              1480,
+              107096
             ]
           ]
         }
@@ -173,81 +175,82 @@
     {
       "example": "03-middleware",
       "dotnet_lines": 26,
-      "goose_lines": 24,
+      "goose_lines": 18,
+      "goose_entry_scaffold_lines": 4,
       "variants": {
         "goose": {
-          "bytes": 22744,
+          "bytes": 30936,
           "cpu_ms": 100,
-          "peak_rss_kib": 1840,
+          "peak_rss_kib": 1928,
           "trials": [
             [
+              90,
+              1904
+            ],
+            [
               110,
-              1728
+              1928
             ],
             [
               100,
-              1840
-            ],
-            [
-              100,
-              1932
+              1940
             ]
           ]
         },
         "goose-static": {
-          "bytes": 963056,
-          "cpu_ms": 90,
-          "peak_rss_kib": 1812,
+          "bytes": 967152,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1804,
           "trials": [
             [
-              90,
-              1820
-            ],
-            [
-              90,
-              1728
+              110,
+              1852
             ],
             [
               100,
-              1812
+              1776
+            ],
+            [
+              100,
+              1804
             ]
           ]
         },
         "dotnet-aot": {
           "bytes": 9162528,
-          "cpu_ms": 750,
-          "peak_rss_kib": 18712,
+          "cpu_ms": 720,
+          "peak_rss_kib": 18616,
           "trials": [
             [
-              770,
-              18676
+              720,
+              18756
             ],
             [
-              700,
-              18712
+              710,
+              18608
             ],
             [
-              750,
-              18804
+              720,
+              18616
             ]
           ]
         },
         "dotnet-single": {
           "bytes": 51644670,
-          "cpu_ms": 1470,
-          "peak_rss_kib": 105840,
+          "cpu_ms": 1540,
+          "peak_rss_kib": 105924,
           "trials": [
             [
-              1430,
-              105872
+              1580,
+              106820
             ],
             [
-              1470,
-              105840
+              1360,
+              105596
             ],
             [
-              1480,
-              105836
+              1540,
+              105924
             ]
           ]
         }
@@ -256,81 +259,82 @@
     {
       "example": "04-json",
       "dotnet_lines": 29,
-      "goose_lines": 27,
+      "goose_lines": 22,
+      "goose_entry_scaffold_lines": 4,
       "variants": {
         "goose": {
-          "bytes": 55512,
-          "cpu_ms": 100,
-          "peak_rss_kib": 2228,
+          "bytes": 59608,
+          "cpu_ms": 240,
+          "peak_rss_kib": 2140,
           "trials": [
             [
-              100,
-              2228
+              230,
+              2140
             ],
             [
-              100,
-              2228
+              240,
+              2140
             ],
             [
-              100,
-              2224
+              430,
+              2216
             ]
           ]
         },
         "goose-static": {
-          "bytes": 995824,
-          "cpu_ms": 100,
-          "peak_rss_kib": 1812,
+          "bytes": 999920,
+          "cpu_ms": 320,
+          "peak_rss_kib": 1816,
           "trials": [
             [
-              100,
-              1812
+              560,
+              1828
             ],
             [
-              100,
-              1824
+              320,
+              1816
             ],
             [
-              100,
-              1808
+              230,
+              1804
             ]
           ]
         },
         "dotnet-aot": {
           "bytes": 9439008,
-          "cpu_ms": 790,
-          "peak_rss_kib": 19268,
+          "cpu_ms": 900,
+          "peak_rss_kib": 19388,
           "trials": [
             [
-              790,
-              19220
+              1040,
+              19388
             ],
             [
-              780,
-              19268
+              900,
+              19444
             ],
             [
-              1110,
-              19420
+              860,
+              19252
             ]
           ]
         },
         "dotnet-single": {
           "bytes": 51649234,
-          "cpu_ms": 1650,
-          "peak_rss_kib": 107488,
+          "cpu_ms": 1710,
+          "peak_rss_kib": 106908,
           "trials": [
             [
               1650,
-              107356
+              106908
             ],
             [
-              1770,
-              107560
+              1740,
+              107616
             ],
             [
-              1650,
-              107488
+              1710,
+              106816
             ]
           ]
         }
@@ -339,81 +343,82 @@
     {
       "example": "05-scope",
       "dotnet_lines": 17,
-      "goose_lines": 24,
+      "goose_lines": 15,
+      "goose_entry_scaffold_lines": 4,
       "variants": {
         "goose": {
-          "bytes": 22744,
-          "cpu_ms": 90,
-          "peak_rss_kib": 1776,
+          "bytes": 30936,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1824,
           "trials": [
             [
-              80,
-              1748
-            ],
-            [
-              100,
-              1776
+              150,
+              1856
             ],
             [
               90,
-              1840
+              1820
+            ],
+            [
+              100,
+              1824
             ]
           ]
         },
         "goose-static": {
-          "bytes": 963056,
-          "cpu_ms": 90,
-          "peak_rss_kib": 1832,
+          "bytes": 967152,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1772,
           "trials": [
             [
-              90,
+              100,
+              1824
+            ],
+            [
+              100,
+              1732
+            ],
+            [
+              110,
               1772
-            ],
-            [
-              90,
-              1932
-            ],
-            [
-              90,
-              1832
             ]
           ]
         },
         "dotnet-aot": {
           "bytes": 9493248,
-          "cpu_ms": 890,
-          "peak_rss_kib": 19056,
+          "cpu_ms": 760,
+          "peak_rss_kib": 19040,
           "trials": [
             [
-              840,
-              18880
+              750,
+              19040
             ],
             [
-              940,
-              19124
+              760,
+              18940
             ],
             [
-              890,
-              19056
+              870,
+              19160
             ]
           ]
         },
         "dotnet-single": {
           "bytes": 51644130,
-          "cpu_ms": 1680,
-          "peak_rss_kib": 107536,
+          "cpu_ms": 1500,
+          "peak_rss_kib": 107148,
           "trials": [
             [
-              1430,
-              107536
+              1490,
+              106632
             ],
             [
-              1680,
-              107428
+              1500,
+              107148
             ],
             [
-              1760,
-              107684
+              1940,
+              107484
             ]
           ]
         }
@@ -422,75 +427,67 @@
     {
       "example": "06-mvc",
       "dotnet_lines": 26,
-      "goose_lines": 20,
+      "goose_lines": 29,
+      "goose_entry_scaffold_lines": 4,
       "variants": {
         "goose": {
-          "bytes": 22744,
-          "cpu_ms": 80,
-          "peak_rss_kib": 1820,
+          "bytes": 30936,
+          "cpu_ms": 110,
+          "peak_rss_kib": 1928,
           "trials": [
             [
-              80,
-              1856
+              110,
+              1936
             ],
             [
-              80,
-              1804
+              110,
+              1880
             ],
             [
-              90,
-              1820
+              100,
+              1928
             ]
           ]
         },
         "goose-static": {
-          "bytes": 963056,
-          "cpu_ms": 90,
-          "peak_rss_kib": 1832,
+          "bytes": 967152,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1820,
           "trials": [
             [
-              90,
-              1832
+              110,
+              1820
             ],
             [
-              80,
-              1860
+              100,
+              1820
             ],
             [
-              90,
-              1728
+              100,
+              1820
             ]
           ]
         },
         "dotnet-single": {
           "bytes": 51645515,
-          "cpu_ms": 1770,
-          "peak_rss_kib": 151764,
+          "cpu_ms": 1820,
+          "peak_rss_kib": 151712,
           "trials": [
             [
-              1770,
-              151764
-            ],
-            [
-              1690,
-              151736
+              1820,
+              151712
             ],
             [
               1860,
-              151916
+              151884
+            ],
+            [
+              1810,
+              151536
             ]
           ]
         }
       }
     }
-  ],
-  "host": {
-    "platform": "Ubuntu 22.04 x64",
-    "cpu": "AMD EPYC 9354P",
-    "logical_cpus": 2,
-    "kernel": "5.15.0-191-generic",
-    "gcc": "11.4.0",
-    "dotnet_sdk": "10.0.400",
-    "goose": "7b90f91d91845f4ef1712e16ed053f395e4e6e1c"
-  }
+  ]
 }

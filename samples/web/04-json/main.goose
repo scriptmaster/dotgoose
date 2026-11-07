@@ -1,34 +1,25 @@
-import .http;
+import web from "../../../lib/web";
 import json;
 
-fn bad(client: i32) {
-    respond(client, 400, "", "");
+fn program_main(args: u8[:][:]) {
+    var builder = WebApplication.CreateSlimBuilder(args);
+    builder.Logging.ClearProviders();
+
+    var app = builder.Build();
+    app.MapPost("/api/items") { req =>
+        req.ReadJson() { item =>
+            let name, has_name = json::as_string(json::member(item, "name"));
+            let quantity, has_quantity = json::as_i64(json::member(item, "quantity"));
+            let valid_name = name.len >= 1 && name.len <= 32 &&
+                all(name) { ascii::is_alpha(it) || ascii::is_digit(it) };
+            if has_name && has_quantity && valid_name && quantity >= 1 && quantity <= 99 {
+                req.Created("/api/items/42", "name", name, "quantity", quantity);
+            } else {
+                req.BadRequest();
+            }
+        };
+    };
+    app.Run();
 }
 
-fn handle(client: i32, method: u8[:], target: u8[:], body: u8[:]) {
-    guard method == "POST" && path_of(target) == "/api/items" else { missing(client); return; }
-
-    var mime: u8[>..] = [];
-    dg_header("Content-Type", mime);
-    guard mime[..] == "application/json" else { bad(client); return; }
-
-    var doc: json::Node[>..] = [];
-    var decoded: u8[>..] = [];
-    let item, error = json::parse(body, doc, decoded);
-    guard error.len == 0 else { bad(client); return; }
-
-    let name, has_name = json::as_string(json::member(item, "name"));
-    let quantity, has_quantity = json::as_i64(json::member(item, "quantity"));
-    guard has_name && has_quantity && name.len > 0 && name.len <= 32 &&
-          quantity >= 1 && quantity <= 99 else { bad(client); return; }
-    for c in name {
-        if !(ascii::is_alpha(c) || ascii::is_digit(c)) { bad(client); return; }
-    }
-
-    let response = str("{\"name\":\"", name, "\",\"quantity\":", quantity, "}");
-    dg_reply(client, 201, "application/json; charset=utf-8", response, "", "", "/api/items/42");
-}
-
-fn main() {
-    serve(handle);
-}
+fn main() { program_main(args()); }

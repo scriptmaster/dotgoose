@@ -3,7 +3,7 @@ import .lexer;
 enum SyntaxKind {
     Unit, Using, Type, Field, Constructor, Method, Parameter, Block,
     Local, Variable, If, While, Return, Assignment, ExpressionStatement,
-    Name, Literal, Group, New, Member, Call, Unary, Binary,
+    Name, Literal, Interpolated, Group, New, Member, Call, Unary, Binary,
 }
 
 struct SyntaxNode {
@@ -58,7 +58,7 @@ fn parse(source: const u8[:], tokens: const Token[:], nodes: SyntaxNode[>..]&) -
     }
 
     fn type_name() {
-        if !take("int") && !take("bool") { name(); }
+        if !take("int") && !take("bool") && !take("string") { name(); }
     }
 
     fn modifiers() {
@@ -108,7 +108,29 @@ fn parse(source: const u8[:], tokens: const Token[:], nodes: SyntaxNode[>..]&) -
             primary(depth + 1);
             add(SyntaxKind.Unary, start, subtree);
             return;
+        } else if tokens[pos].kind == TokenKind.InterpolatedStart {
+            pos++;
+            while tokens[pos].kind != TokenKind.InterpolatedEnd {
+                if tokens[pos].kind == TokenKind.StringPart || tokens[pos].kind == TokenKind.RawPart {
+                    let part = pos;
+                    pos++;
+                    add(SyntaxKind.Literal, part, nodes.len);
+                } else {
+                    if tokens[pos].kind != TokenKind.InterpolationOpen {
+                        return tokens[pos].start, "interpolation expression" from parse;
+                    }
+                    pos++;
+                    expression(1, depth+1);
+                    if tokens[pos].kind != TokenKind.InterpolationClose {
+                        return tokens[pos].start, "closing interpolation brace without alignment or format specifier" from parse;
+                    }
+                    pos++;
+                }
+            }
+            pos++;
+            add(SyntaxKind.Interpolated, start, subtree);
         } else if tokens[pos].kind == TokenKind.Integer || tokens[pos].kind == TokenKind.String ||
+                  tokens[pos].kind == TokenKind.RawString ||
                   at("true") || at("false") {
             pos++;
             add(SyntaxKind.Literal, start, subtree);
@@ -185,7 +207,7 @@ fn parse(source: const u8[:], tokens: const Token[:], nodes: SyntaxNode[>..]&) -
             if !at(";") { expression(1, 0); }
             expect(";");
             add(SyntaxKind.Return, start, subtree);
-        } else if at("int") || at("bool") || (is_name(pos) && is_name(pos + 1)) {
+        } else if at("int") || at("bool") || at("string") || (is_name(pos) && is_name(pos + 1)) {
             type_name();
             loop {
                 let variable = pos;

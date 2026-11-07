@@ -1,4 +1,5 @@
 import .parser;
+import .strings;
 
 const absent = -1;
 const void_type = -2;
@@ -43,6 +44,13 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
 
     fn check(ok: bool, node: i64, message: const u8[:]) {
         if !ok { fail(node, message); }
+    }
+
+    fn prefix_expression(start: i64, prefix: const u8[:]) {
+        let end = output.len;
+        for i in prefix.len { output.push(0); }
+        output[start + prefix.len..].move_from(output[start..end]);
+        output[start..start + prefix.len].move_from(prefix);
     }
 
     fn declaration(node: i64) -> i64 {
@@ -93,6 +101,7 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
     fn type_id(name: const u8[:]) -> i64 {
         if name == "int" { return int_type; }
         if name == "bool" { return bool_type; }
+        if name == "string" { return string_type; }
         if name == "void" { return void_type; }
         return lookup_type(name);
     }
@@ -100,6 +109,7 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
     fn type_text(id: i64) -> const u8[:] {
         if id == int_type { return "i32"; }
         if id == bool_type { return "bool"; }
+        if id == string_type { return "u8[>..]"; }
         return text(name_token(id));
     }
 
@@ -115,7 +125,7 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
             |let|var|extern|const|pad|reusable|if|else|while|for|in|loop|block|
             |guard|match|defer|return|break|continue|as|true|false|null|self|
             |bool|varint|i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|
-            |main|receiver|print|dotgoose|
+            |main|receiver|print|str|dotgoose|
             """;
         let name = text(index);
         check(!starts_with(name, "new_") && find(reserved, str("|", name, "|")) < 0,
@@ -294,7 +304,7 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
             check(argument != absent && next(argument) == absent, node, "unsupported Console.WriteLine overload");
             output.append("print(");
             let actual = expression(argument, depth + 1);
-            check(actual == int_type || (actual == string_type && nodes[argument].kind == SyntaxKind.Literal),
+            check(actual == int_type || actual == string_type,
                 argument, "unsupported Console.WriteLine argument");
             output.push(')');
             return void_type;
@@ -326,8 +336,41 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
         if kind == SyntaxKind.Literal {
             let token = head(node);
             if tokens[token].kind == TokenKind.Integer { return write_integer(node, node, false); }
+            if tokens[token].kind == TokenKind.RawString {
+                var decoded: u8[>..] = [];
+                let error = raw_content(text(token), decoded);
+                check(error.len == 0, node, error);
+                if quote_count(text(token), 0) == 3 && find(text(token), "\r") < 0 { output.append(text(token)); }
+                else { write_quoted(output, decoded); }
+                return string_type;
+            }
+            if tokens[token].kind == TokenKind.StringPart || tokens[token].kind == TokenKind.RawPart {
+                write_interpolation_part(output, text(token), tokens[token].kind == TokenKind.RawPart);
+                return string_type;
+            }
             output.append(text(token));
             return if tokens[token].kind == TokenKind.String { string_type } else { bool_type };
+        }
+        if kind == SyntaxKind.Interpolated {
+            output.append("str(");
+            var part = child(node);
+            var first = true;
+            while part != absent {
+                if !first { output.append(", "); }
+                first = false;
+                let start = output.len;
+                let actual = expression(part, depth+1);
+                check(actual == string_type || actual == int_type || actual == bool_type,
+                      part, "interpolation requires text, Int32, or Boolean");
+                if actual == bool_type {
+                    uses_library = true;
+                    prefix_expression(start, "dotgoose::interpolate(");
+                    output.push(')');
+                }
+                part = next(part);
+            }
+            output.push(')');
+            return string_type;
         }
         if kind == SyntaxKind.Unary {
             let literal = child(node);
@@ -419,21 +462,21 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
             let declared_name = text(head(node));
             let inferred = declared_name == "var" && lookup_type(declared_name) == absent;
             let declared = type_id(declared_name);
-            check(inferred || scalar(declared) || (declared >= 0 && declared != entry), node, "unsupported local type");
+            check(inferred || scalar(declared) || declared == string_type || (declared >= 0 && declared != entry),
+                  node, "unsupported local type");
             var variable = child(node);
             while variable != absent {
                 let name = head(variable);
                 let init = child(variable);
                 let start = output.len;
                 let actual = if nodes[init].kind == SyntaxKind.New { construct(init) } else { expression(init, 0) };
-                check(scalar(actual) || (actual >= 0 && actual != entry), init, "unsupported initializer type");
+                check(scalar(actual) || actual == string_type || (actual >= 0 && actual != entry), init, "unsupported initializer type");
                 check(inferred || actual == declared, init, "initializer type does not match");
                 check(!inferred || next(variable) == absent, node, "var requires a single declarator");
-                let prefix = str("var ", text(name), ": ", type_text(actual), " = ");
-                let end = output.len;
-                for i in prefix.len { output.push(0); }
-                output[start + prefix.len..].move_from(output[start..end]);
-                output[start..start + prefix.len].move_from(prefix[..]);
+                let prefix = str("var ", text(name), ": ", type_text(actual), " = ",
+                                 if actual == string_type { "str(" } else { "" });
+                prefix_expression(start, prefix);
+                if actual == string_type { output.push(')'); }
                 output.append(";\n");
                 locals[local_index(text(name))].type_id = actual;
                 variable = next(variable);
@@ -445,7 +488,9 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
             check(left_kind == SyntaxKind.Name || left_kind == SyntaxKind.Member, lhs, "invalid assignment target");
             let left = if left_kind == SyntaxKind.Name { write_name(lhs, true) } else { write_member(lhs) };
             output.append(" = ");
+            if left == string_type { output.append("str("); }
             check(expression(next(lhs), 0) == left, node, "assignment type does not match");
+            if left == string_type { output.push(')'); }
             output.append(";\n");
         } else if kind == SyntaxKind.ExpressionStatement {
             let value = child(node);

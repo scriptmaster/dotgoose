@@ -1,22 +1,20 @@
-import .http;
+import web from "../../../lib/web";
 
-fn handle(client: i32, method: u8[:], target: u8[:], body: u8[:]) {
-    let path = path_of(target);
-    guard method == "GET" && starts_with(path, "/api/items/") else { missing(client); return; }
+fn program_main(args: u8[:][:]) {
+    var builder = WebApplication.CreateSlimBuilder(args);
+    builder.Logging.ClearProviders();
 
-    let id, valid = parse_int(path[11..]);
-    guard valid && id > 0 && id <= 2147483647 else { missing(client); return; }
-
-    let query = query_of(target);
-    if query == "includeDetails=true" {
-        respond(client, 200, "application/json", str("{\"id\":", id, ",\"details\":\"starter\"}"));
-    } else if query.len == 0 || query == "includeDetails=false" {
-        respond(client, 200, "application/json", str("{\"id\":", id, "}"));
-    } else {
-        respond(client, 400, "", "");
-    }
+    var app = builder.Build();
+    app.MapGet("/api/items/{id:int:min(1)}") { req =>
+        if req.query == "includeDetails=true" {
+            req.Json("id", req.id, "details", "starter");
+        } else if req.query.len == 0 || req.query == "includeDetails=false" {
+            req.Json("id", req.id);
+        } else {
+            req.BadRequest();
+        }
+    };
+    app.Run();
 }
 
-fn main() {
-    serve(handle);
-}
+fn main() { program_main(args()); }

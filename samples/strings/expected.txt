@@ -1,0 +1,16 @@
+{"status":"ok"}
+C:\temp\new "quoted" \n
+A triple quote is """ in this string.
+{
+  "status": "ok"
+}
+Item 42: Goose, enabled=True.
+{"id":42,"status":"ok"}
+Next ID: 43. Escaped braces: {42}.
+Braces: {42}; Boolean: False.
+Escapes: "quoted"	42
+end
+Nested text: ok.
+
+Goose -> DotGoose
+1 then 2

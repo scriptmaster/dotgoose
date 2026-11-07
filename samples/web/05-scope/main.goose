@@ -1,30 +1,20 @@
-import .http;
-import .dotgoose;
+import web from "../../../lib/web";
 
-struct Visit {
-    step: i32,
+struct Visit { step: i32 = 0 }
+
+fn Advance(visit: Visit&) -> i32 { visit.step++; return visit.step; }
+
+fn program_main(args: u8[:][:]) {
+    var builder = WebApplication.CreateSlimBuilder(args);
+    builder.Logging.ClearProviders();
+    builder.Services.AddScoped<Visit>();
+
+    var app = builder.Build();
+    app.Use() { req => req.GetRequiredService<Visit>().Advance(); };
+    app.MapGet("/api/visit") { req =>
+        req.Json("step", req.GetRequiredService<Visit>().Advance());
+    };
+    app.Run();
 }
 
-fn advance(visit: Visit&) -> i32 {
-    visit.step = visit.step.add(1);
-    return visit.step;
-}
-
-fn endpoint(client: i32, visit: Visit&) {
-    respond(client, 200, "application/json", str("{\"step\":", visit.advance(), "}"));
-}
-
-fn handle(client: i32, method: u8[:], target: u8[:], body: u8[:]) {
-    var visit = Visit { step: 0 };
-    visit.advance();
-
-    if method == "GET" && path_of(target) == "/api/visit" {
-        endpoint(client, visit);
-    } else {
-        missing(client);
-    }
-}
-
-fn main() {
-    serve(handle);
-}
+fn main() { program_main(args()); }

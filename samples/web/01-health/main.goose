@@ -1,13 +1,12 @@
-import .http;
+import web from "../../../lib/web";
 
-fn handle(client: i32, method: u8[:], target: u8[:], body: u8[:]) {
-    if method == "GET" && path_of(target) == "/healthz" {
-        respond(client, 200, "application/json", "{\"status\":\"ok\"}");
-    } else {
-        missing(client);
-    }
+fn program_main(args: u8[:][:]) {
+    var builder = WebApplication.CreateSlimBuilder(args);
+    builder.Logging.ClearProviders();
+
+    var app = builder.Build();
+    app.MapGet("/healthz") { req => req.Send(Results.Text("""{"status":"ok"}""", "application/json")); };
+    app.Run();
 }
 
-fn main() {
-    serve(handle);
-}
+fn main() { program_main(args()); }

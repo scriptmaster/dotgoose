@@ -12,7 +12,9 @@ Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for inva
 | --- | --- | --- |
 | `int`, `bool`, `void` | `i32`, `bool`, omitted result | Scalar declarations carry explicit types to avoid Goose literal inference. |
 | Decimal integer and Boolean literals | Canonical decimal and Boolean literals | An integer literal may have a leading unary minus. |
-| String literals | Goose UTF-8 literals | Regular printable ASCII strings with quote, backslash, tab, LF and CR escapes. Use them as direct arguments to the string overload of `Console.WriteLine`. |
+| String literals | Goose UTF-8 literals | Regular printable ASCII strings with quote, backslash, tab, LF and CR escapes. Raw literals support UTF-8 content, literal backslashes, variable quote delimiters, and closing-delimiter indentation removal. |
+| String locals | Owned Goose byte arrays | Literal and interpolated initializers, copying, assignment, and console output. Reference identity, indexing, and string operators require later profiles. |
+| `$"...{expression}..."` and single-line interpolated raw literals | `str(...)` | Parse and bind each expression through the normal frontend. Holes support text, Int32, and Boolean. Preserve expression evaluation order and C# `True`/`False` text under invariant culture. Raw interpolation uses the dollar count to determine the brace delimiter. |
 | Initialized locals and simple assignments | `var` and `=` | Assign scalar locals or fields, or whole struct locals. Struct assignment copies the value. |
 | `+` on `int` | `a.add(b)` | `import .dotgoose;` provides the global `i32` overload. `dotgoose::add(a, b)` is the qualified form. Reject overflowing compile-time constants and preserve unchecked 32-bit wrap for runtime values in every Goose build. |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Corresponding Goose operators | Identical scalar types. Ordered comparisons require integers. |
@@ -20,6 +22,8 @@ Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for inva
 | `System.Console.WriteLine(int/string)` | `print(value)` | Matches the bound overload. Integer output uses the invariant decimal form. Sample parity is defined under invariant culture and LF output. |
 
 Directives and source comments have different roles. Directives require project-level policy and are rejected. Source comments are omitted in the starter profile. Unsupported statements and expressions are rejected even in unreachable code.
+
+The [strings sample](../samples/strings/Program.cs) and its [generated Goose](../samples/strings/expected.goose) cover JSON raw literals, backslashes, indentation, longer quote delimiters, brace escaping, interpolation expressions, Boolean formatting, text locals, and side effects. Triple-quoted C# literals retain the same raw form in Goose when their newline semantics agree. Longer delimiters and CRLF raw contents are decoded and emitted with Goose escapes. The differential suite includes a generated CRLF source file. Interpolation format specifiers, alignment, culture providers, and multiline interpolated literals are diagnosed by this profile. [C# raw string rules](https://learn.microsoft.com/dotnet/csharp/language-reference/tokens/raw-string)
 
 ## Data and construction
 

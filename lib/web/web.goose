@@ -1,6 +1,7 @@
 namespace web;
 
 import .http;
+import .hosting;
 import json;
 import std;
 
@@ -21,31 +22,7 @@ struct App<T> {
     stages: u8[..16] = [],
 }
 
-fn Run<Routes>() {
-    RunWith(0 as i32, Routes);
-}
-
-fn RunWith<T, Routes>(initial_state: T) {
-    serve() { client, method, target, body =>
-        var app = App<T> { client: client, method: method, path: path_of(target),
-                           query: query_of(target), body: body, state: initial_state };
-        Routes(app);
-        if !app.handled {
-            if app.allow_get || app.allow_post {
-                dg_method_not_allowed(client, if app.allow_get && app.allow_post { "GET, POST" }
-                    else if app.allow_get { "GET" } else { "POST" });
-            } else {
-                missing(client);
-            }
-        }
-    };
-}
-
-fn Use<Next>(app) {
-    if !app.handled { Next(app); }
-}
-
-fn match_path(app, route: const u8[:]) -> bool {
+fn match_path<T>(app: App<T>&, route: const u8[:]) -> bool {
     let positive = ends_with(route, "/{id:int:min(1)}");
     let marker = if positive { "{id:int:min(1)}" } else { "{id:int}" };
     if !positive && !ends_with(route, "/{id:int}") { return app.path == route; }
@@ -56,20 +33,6 @@ fn match_path(app, route: const u8[:]) -> bool {
     if !ok || id < -2147483648 || id > 2147483647 || (positive && id < 1) { return false; }
     app.id = id as i32;
     return true;
-}
-
-fn MapGet<Handler>(app, route: const u8[:]) {
-    if app.handled || !match_path(app, route) { return; }
-    if app.method != "GET" { app.allow_get = true; return; }
-    Handler(app);
-    if !app.handled { app.NotFound(); }
-}
-
-fn MapPost<Handler>(app, route: const u8[:]) {
-    if app.handled || !match_path(app, route) { return; }
-    if app.method != "POST" { app.allow_post = true; return; }
-    Handler(app);
-    if !app.handled { app.NotFound(); }
 }
 
 fn Reply(app, status: i32, mime: const u8[:], body: const u8[:], location: const u8[:] = "") {
