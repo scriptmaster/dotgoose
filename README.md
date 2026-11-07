@@ -6,36 +6,47 @@ The starter translates a single C# file. It supports scalar code, basic control 
 
 ## Explainer video
 
-https://github.com/user-attachments/assets/de94fdad-7123-40a4-9df9-f241230994cb
+https://github.com/user-attachments/assets/ba69e609-fb06-4d32-864e-c17db9d70af0
 
 [Download Part 1 · C# to Goose (MP4)](https://github.com/scriptmaster/dotgoose/raw/refs/heads/main/videos/dotgoose-part-1.mp4) · [English captions](videos/dotgoose-part-1.en.srt)
 
-Eight numbered examples compare C# with the generated Goose and show the matching output. The final section compares the build sizes for the same programs.
+Eight numbered examples compare C# with the generated Goose and show the matching output. The final sections compare executable sizes and explain what each build needs to run in a container.
 
 ### Part 1 binary sizes
 
-| Part 1 example | Goose executable | .NET Native AOT executable | .NET managed DLL |
-| --- | ---: | ---: | ---: |
-| 1. [A first translation](samples/basics/Program.cs) | 14,552 B | 1,118,704 B | 4,608 B |
-| 2. [Console escapes](test/programs/console-escapes.cs) | 14,552 B | 1,118,704 B | 4,608 B |
-| 3. [Loops and branches](test/programs/control-flow.cs) | 14,552 B | 1,118,704 B | 4,608 B |
-| 4. [Integer overflow](test/programs/overflow.cs) | 14,552 B | 1,118,688 B | 4,608 B |
-| 5. [From classes to structs](samples/objects/Program.cs) | 14,552 B | 1,118,688 B | 4,608 B |
-| 6. [Defaults and struct copies](test/programs/struct-defaults.cs) | 14,552 B | 1,118,688 B | 4,608 B |
-| 7. [Same name, different receiver](test/programs/receiver-dispatch.cs) | 14,552 B | 1,118,688 B | 4,608 B |
-| 8. [Evaluation order with side effects](test/programs/receiver-order.cs) | 14,552 B | 1,118,688 B | 4,608 B |
+| Part 1 example | Goose with system libc | Goose fully static | .NET Native AOT | .NET self-contained single-file | .NET managed DLL |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1. [A first translation](samples/basics/Program.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 2. [Console escapes](test/programs/console-escapes.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 3. [Loops and branches](test/programs/control-flow.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 4. [Integer overflow](test/programs/overflow.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 5. [From classes to structs](samples/objects/Program.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 6. [Defaults and struct copies](test/programs/struct-defaults.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 7. [Same name, different receiver](test/programs/receiver-dispatch.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
+| 8. [Evaluation order with side effects](test/programs/receiver-order.cs) | 14.6 KB | 954.8 KB | 1.1 MB | 39.2 MB | 4.6 KB |
 
-Measured on Ubuntu 22.04 x64 using the pinned Goose toolchain with GCC 11.4 and the .NET SDK 10.0.400. The native columns show stripped executable file sizes. Both executables include the runtime code they need and use the host system libraries. The managed DLL is shown separately and requires an installed .NET runtime. All three builds produced identical stdout for each fixture.
+Measured on Ubuntu 22.04 x64 with the pinned Goose toolchain, GCC 11.4, and .NET SDK 10.0.400. Sizes are decimal KB and MB, rounded to one decimal place. All five builds produced the same stdout for each example.
 
-To reproduce, put one C# fixture at `Program.cs` in a clean directory with a copy of [the test project](test/Sample.csproj), the generated `program.goose`, and [the DotGoose library](lib/dotgoose.goose). Then run the following commands.
+- **Goose with system libc** bundles the Goose runtime and dynamically links to glibc. It needs `libc.so.6` and the system loader at `/lib64/ld-linux-x86-64.so.2`.
+- **Goose fully static** links the Goose runtime and glibc into the executable. `readelf` found no ELF interpreter or shared-library dependencies. All eight ran in a Linux chroot containing only the executable. These console programs can use a Docker `FROM scratch` image on compatible Linux x64 Kubernetes nodes. Backend programs can still need files such as TLS certificates. [Docker scratch images](https://docs.docker.com/build/building/base-images/#create-a-minimal-base-image-using-scratch)
+- **.NET Native AOT** includes the .NET runtime code the app needs and uses system libraries. **.NET self-contained single-file** bundles the .NET runtime into one compressed executable, extracts native runtime libraries at startup, and runs the managed code with the JIT. Both run without a separately installed .NET runtime. The managed DLL requires one. [Native AOT](https://learn.microsoft.com/dotnet/core/deploying/native-aot/) · [Single-file deployment](https://learn.microsoft.com/dotnet/core/deploying/single-file/)
+
+To reproduce, put one C# fixture at `Program.cs` in a clean directory with a copy of [the test project](test/Sample.csproj), the generated `program.goose`, and [the DotGoose library](lib/dotgoose.goose). Then run these commands.
 
 ```sh
 goose build program.goose --standalone --cc gcc -o goose-app
+goose --standalone -o standalone.c program.goose
+gcc -O2 -static -s standalone.c -o goose-static -lm -pthread
+
 dotnet publish Sample.csproj -c Release -r linux-x64 -p:PublishAot=true \
     -p:OptimizationPreference=Size -p:StripSymbols=true -p:InvariantGlobalization=true -o aot
+dotnet publish Sample.csproj -c Release -r linux-x64 --self-contained true \
+    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+    -p:EnableCompressionInSingleFile=true -p:InvariantGlobalization=true -p:DebugType=None -o single
 dotnet build Sample.csproj -c Release -o managed
+
 strip --strip-all goose-app aot/Sample
-stat -c '%n %s bytes' goose-app aot/Sample managed/Sample.dll
+stat -c '%n %s bytes' goose-app goose-static aot/Sample single/Sample managed/Sample.dll
 ```
 
 ## Run a conversion sample
