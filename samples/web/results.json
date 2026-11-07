@@ -1,0 +1,496 @@
+{
+  "requests": 2000,
+  "trials": 3,
+  "shared_goose_lines": 188,
+  "add_library_lines": 7,
+  "examples": [
+    {
+      "example": "01-health",
+      "dotnet_lines": 5,
+      "goose_lines": 11,
+      "variants": {
+        "goose": {
+          "bytes": 22744,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1808,
+          "trials": [
+            [
+              90,
+              1860
+            ],
+            [
+              90,
+              1808
+            ],
+            [
+              80,
+              1776
+            ]
+          ]
+        },
+        "goose-static": {
+          "bytes": 963056,
+          "cpu_ms": 80,
+          "peak_rss_kib": 1852,
+          "trials": [
+            [
+              80,
+              1900
+            ],
+            [
+              80,
+              1852
+            ],
+            [
+              90,
+              1728
+            ]
+          ]
+        },
+        "dotnet-aot": {
+          "bytes": 9158240,
+          "cpu_ms": 700,
+          "peak_rss_kib": 18444,
+          "trials": [
+            [
+              710,
+              18440
+            ],
+            [
+              670,
+              18444
+            ],
+            [
+              700,
+              18672
+            ]
+          ]
+        },
+        "dotnet-single": {
+          "bytes": 51642981,
+          "cpu_ms": 1370,
+          "peak_rss_kib": 105412,
+          "trials": [
+            [
+              1330,
+              105316
+            ],
+            [
+              1410,
+              106148
+            ],
+            [
+              1370,
+              105412
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "example": "02-routing",
+      "dotnet_lines": 14,
+      "goose_lines": 18,
+      "variants": {
+        "goose": {
+          "bytes": 26840,
+          "cpu_ms": 110,
+          "peak_rss_kib": 1824,
+          "trials": [
+            [
+              110,
+              1832
+            ],
+            [
+              100,
+              1824
+            ],
+            [
+              110,
+              1772
+            ]
+          ]
+        },
+        "goose-static": {
+          "bytes": 967152,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1824,
+          "trials": [
+            [
+              130,
+              1820
+            ],
+            [
+              100,
+              1932
+            ],
+            [
+              90,
+              1824
+            ]
+          ]
+        },
+        "dotnet-aot": {
+          "bytes": 9148544,
+          "cpu_ms": 730,
+          "peak_rss_kib": 18572,
+          "trials": [
+            [
+              730,
+              18572
+            ],
+            [
+              770,
+              18692
+            ],
+            [
+              710,
+              18488
+            ]
+          ]
+        },
+        "dotnet-single": {
+          "bytes": 51643380,
+          "cpu_ms": 1430,
+          "peak_rss_kib": 106624,
+          "trials": [
+            [
+              1430,
+              106852
+            ],
+            [
+              1470,
+              106624
+            ],
+            [
+              1340,
+              106576
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "example": "03-middleware",
+      "dotnet_lines": 26,
+      "goose_lines": 24,
+      "variants": {
+        "goose": {
+          "bytes": 22744,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1840,
+          "trials": [
+            [
+              110,
+              1728
+            ],
+            [
+              100,
+              1840
+            ],
+            [
+              100,
+              1932
+            ]
+          ]
+        },
+        "goose-static": {
+          "bytes": 963056,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1812,
+          "trials": [
+            [
+              90,
+              1820
+            ],
+            [
+              90,
+              1728
+            ],
+            [
+              100,
+              1812
+            ]
+          ]
+        },
+        "dotnet-aot": {
+          "bytes": 9162528,
+          "cpu_ms": 750,
+          "peak_rss_kib": 18712,
+          "trials": [
+            [
+              770,
+              18676
+            ],
+            [
+              700,
+              18712
+            ],
+            [
+              750,
+              18804
+            ]
+          ]
+        },
+        "dotnet-single": {
+          "bytes": 51644670,
+          "cpu_ms": 1470,
+          "peak_rss_kib": 105840,
+          "trials": [
+            [
+              1430,
+              105872
+            ],
+            [
+              1470,
+              105840
+            ],
+            [
+              1480,
+              105836
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "example": "04-json",
+      "dotnet_lines": 29,
+      "goose_lines": 27,
+      "variants": {
+        "goose": {
+          "bytes": 55512,
+          "cpu_ms": 100,
+          "peak_rss_kib": 2228,
+          "trials": [
+            [
+              100,
+              2228
+            ],
+            [
+              100,
+              2228
+            ],
+            [
+              100,
+              2224
+            ]
+          ]
+        },
+        "goose-static": {
+          "bytes": 995824,
+          "cpu_ms": 100,
+          "peak_rss_kib": 1812,
+          "trials": [
+            [
+              100,
+              1812
+            ],
+            [
+              100,
+              1824
+            ],
+            [
+              100,
+              1808
+            ]
+          ]
+        },
+        "dotnet-aot": {
+          "bytes": 9439008,
+          "cpu_ms": 790,
+          "peak_rss_kib": 19268,
+          "trials": [
+            [
+              790,
+              19220
+            ],
+            [
+              780,
+              19268
+            ],
+            [
+              1110,
+              19420
+            ]
+          ]
+        },
+        "dotnet-single": {
+          "bytes": 51649234,
+          "cpu_ms": 1650,
+          "peak_rss_kib": 107488,
+          "trials": [
+            [
+              1650,
+              107356
+            ],
+            [
+              1770,
+              107560
+            ],
+            [
+              1650,
+              107488
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "example": "05-scope",
+      "dotnet_lines": 17,
+      "goose_lines": 24,
+      "variants": {
+        "goose": {
+          "bytes": 22744,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1776,
+          "trials": [
+            [
+              80,
+              1748
+            ],
+            [
+              100,
+              1776
+            ],
+            [
+              90,
+              1840
+            ]
+          ]
+        },
+        "goose-static": {
+          "bytes": 963056,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1832,
+          "trials": [
+            [
+              90,
+              1772
+            ],
+            [
+              90,
+              1932
+            ],
+            [
+              90,
+              1832
+            ]
+          ]
+        },
+        "dotnet-aot": {
+          "bytes": 9493248,
+          "cpu_ms": 890,
+          "peak_rss_kib": 19056,
+          "trials": [
+            [
+              840,
+              18880
+            ],
+            [
+              940,
+              19124
+            ],
+            [
+              890,
+              19056
+            ]
+          ]
+        },
+        "dotnet-single": {
+          "bytes": 51644130,
+          "cpu_ms": 1680,
+          "peak_rss_kib": 107536,
+          "trials": [
+            [
+              1430,
+              107536
+            ],
+            [
+              1680,
+              107428
+            ],
+            [
+              1760,
+              107684
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "example": "06-mvc",
+      "dotnet_lines": 26,
+      "goose_lines": 20,
+      "variants": {
+        "goose": {
+          "bytes": 22744,
+          "cpu_ms": 80,
+          "peak_rss_kib": 1820,
+          "trials": [
+            [
+              80,
+              1856
+            ],
+            [
+              80,
+              1804
+            ],
+            [
+              90,
+              1820
+            ]
+          ]
+        },
+        "goose-static": {
+          "bytes": 963056,
+          "cpu_ms": 90,
+          "peak_rss_kib": 1832,
+          "trials": [
+            [
+              90,
+              1832
+            ],
+            [
+              80,
+              1860
+            ],
+            [
+              90,
+              1728
+            ]
+          ]
+        },
+        "dotnet-single": {
+          "bytes": 51645515,
+          "cpu_ms": 1770,
+          "peak_rss_kib": 151764,
+          "trials": [
+            [
+              1770,
+              151764
+            ],
+            [
+              1690,
+              151736
+            ],
+            [
+              1860,
+              151916
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "host": {
+    "platform": "Ubuntu 22.04 x64",
+    "cpu": "AMD EPYC 9354P",
+    "logical_cpus": 2,
+    "kernel": "5.15.0-191-generic",
+    "gcc": "11.4.0",
+    "dotnet_sdk": "10.0.400",
+    "goose": "7b90f91d91845f4ef1712e16ed053f395e4e6e1c"
+  }
+}

@@ -4,6 +4,8 @@ DotGoose converts C# into readable [Goose](https://github.com/aardappel/goose) s
 
 The starter translates a single C# file. It supports scalar code, basic control flow, selected console calls, value-type structs and scoped sealed classes. In the [objects sample](samples/objects/Program.cs), `new Counter(40)` becomes `new_Counter(40)` and `counter.Add(2)` keeps the same call shape. [See the Goose output.](samples/objects/expected.goose)
 
+For C# `int` addition, the compiler emits `x.add(y)` with `import .dotgoose;`. The library provides the `i32` overload and the qualified form `dotgoose::add(x, y)`. Both preserve unchecked 32-bit wrapping.
+
 ## Explainer video
 
 https://github.com/user-attachments/assets/ba69e609-fb06-4d32-864e-c17db9d70af0
@@ -49,6 +51,12 @@ strip --strip-all goose-app aot/Sample
 stat -c '%n %s bytes' goose-app goose-static aot/Sample single/Sample managed/Sample.dll
 ```
 
+## Part 2 web examples
+
+Six paired ASP.NET Core and Goose programs cover health checks, route and query binding, middleware, JSON validation, request scope, and an MVC controller with a Razor view. The Goose examples are hand-ported and share a small Linux HTTP transport.
+
+The [web comparison](samples/web/README.md#part-2-measurements) reports application lines, executable sizes, CPU time, and peak RAM. Every build was checked against the same HTTP response contract. The recorded measurements use 2,000 sequential loopback requests per run.
+
 ## Run a conversion sample
 
 The starter compiler runs with the [pinned Goose toolchain](spec/README.md). Run this from the repository root.
@@ -63,7 +71,7 @@ goose run samples/objects/actual.goose
 
 Run `bash test/run.sh` with the .NET 10 SDK, Goose, and a C compiler. The suite runs each positive fixture in .NET, builds and runs its generated Goose executable, and reruns the generated program in Goose debug mode. It compares stdout and stderr byte for byte, checks the sample source snapshots, and verifies that rejected programs leave existing output intact. .NET runs the original fixtures as the comparison runtime.
 
-Run `bash test/syntax.sh` for the Goose-only frontend checks. Set `GOOSE` to the path to your Goose executable if it is outside `PATH`. The [Differential tests workflow](.github/workflows/differential.yml) runs on pushes and pull requests.
+Run `bash test/syntax.sh` for the Goose-only frontend checks and `python3 test/web.py` for HTTP parity. Set `GOOSE` to the path to your Goose executable if it is outside `PATH`. The [Differential tests workflow](.github/workflows/differential.yml) runs on pushes and pull requests.
 
 ## Roadmap
 

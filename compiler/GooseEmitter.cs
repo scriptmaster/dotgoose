@@ -259,7 +259,8 @@ sealed class GooseEmitter(SemanticModel model)
         if (binary.IsKind(SyntaxKind.AddExpression) && leftType?.SpecialType == SpecialType.System_Int32)
         {
             usesLibrary = true;
-            return $"dotgoose::add_i32({left}, {right})";
+            var receiver = binary.Left is PrefixUnaryExpressionSyntax ? $"({left})" : left;
+            return $"{receiver}.add({right})";
         }
         Require(binary.Kind() is SyntaxKind.EqualsExpression or SyntaxKind.NotEqualsExpression ||
             leftType?.SpecialType == SpecialType.System_Int32 && binary.Kind() is

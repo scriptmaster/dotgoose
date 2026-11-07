@@ -43,3 +43,8 @@ jobs:
         env:
           GOOSE: ${{ github.workspace }}/.upstream-goose/build/goose
         run: bash test/run.sh
+
+      - name: Verify the web examples over HTTP
+        env:
+          GOOSE: ${{ github.workspace }}/.upstream-goose/build/goose
+        run: python3 test/web.py

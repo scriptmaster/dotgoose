@@ -1,5 +1,7 @@
 # Backend and library specification for 1.0
 
+The [Part 2 web examples](../samples/web/README.md) provide hand-ported HTTP fixtures and measured baselines. They cover routing, middleware, JSON, request scope, and a controller/view flow. Their loopback transport is a demonstration, and automatic ASP.NET Core conversion remains a roadmap item.
+
 ## Library resolution
 
 Resolve each BCL or third-party use against the bound symbol and selected target framework. The mapping key includes assembly or package identity, version range, fully qualified type, generic arity, member name and parameter types. Prefer direct Goose operations, then a versioned DotGoose module, then opted-in source conversion. Keep native and compatibility dependencies explicit in generated imports. Stage the required library beside the output, or use a relative source import for the starter. Conversion reports record the original symbol, selected mapping and semantic restrictions.

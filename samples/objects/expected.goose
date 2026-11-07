@@ -11,7 +11,7 @@ fn new_Counter(start: i32) -> Counter {
 }
 
 fn Add(receiver: Counter&, delta: i32) {
-    receiver.value = dotgoose::add_i32(receiver.value, delta);
+    receiver.value = receiver.value.add(delta);
 }
 
 fn Read(receiver: Counter&) -> i32 {
@@ -24,7 +24,7 @@ struct Point {
 }
 
 fn Sum(receiver: Point&) -> i32 {
-    return dotgoose::add_i32(receiver.X, receiver.Y);
+    return receiver.X.add(receiver.Y);
 }
 
 fn main() {

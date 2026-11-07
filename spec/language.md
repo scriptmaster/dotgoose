@@ -14,7 +14,7 @@ Exit codes are 0 on success, 1 for invalid or unsupported source, and 2 for inva
 | Decimal integer and Boolean literals | Canonical decimal and Boolean literals | An integer literal may have a leading unary minus. |
 | String literals | Goose UTF-8 literals | Regular printable ASCII strings with quote, backslash, tab, LF and CR escapes. Use them as direct arguments to the string overload of `Console.WriteLine`. |
 | Initialized locals and simple assignments | `var` and `=` | Assign scalar locals or fields, or whole struct locals. Struct assignment copies the value. |
-| `+` on `int` | `dotgoose::add_i32(a, b)` | Reject overflowing compile-time constants. Preserve unchecked 32-bit wrap for runtime values in every Goose build. Explicit checked or unchecked blocks and expressions are outside the starter profile. |
+| `+` on `int` | `a.add(b)` | `import .dotgoose;` provides the global `i32` overload. `dotgoose::add(a, b)` is the qualified form. Reject overflowing compile-time constants and preserve unchecked 32-bit wrap for runtime values in every Goose build. |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Corresponding Goose operators | Identical scalar types. Ordered comparisons require integers. |
 | Braced `if`, `else`, `while`, `return` | Corresponding Goose statements | Branch and loop bodies require braces. Value-returning methods require an explicit return on all structural paths, independent of constant-condition reachability. |
 | `System.Console.WriteLine(int/string)` | `print(value)` | Matches the bound overload. Integer output uses the invariant decimal form. Sample parity is defined under invariant culture and LF output. |

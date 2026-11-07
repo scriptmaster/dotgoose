@@ -7,6 +7,8 @@ trap 'rm -rf -- "$work"' EXIT
 goose=${GOOSE:-goose}
 check=("$goose" run "$root/compiler/native/check.goose" --)
 "$goose" run "$root/test/parser.goose"
+cp "$root/test/add.goose" "$root/lib/dotgoose.goose" "$work/"
+"$goose" run "$work/add.goose" --debug
 
 [[ $("${check[@]}" "$root/samples/basics/Program.cs") == 'Parsed 62 tokens and 38 syntax nodes.' ]]
 [[ $("${check[@]}" "$root/samples/objects/Program.cs") == 'Parsed 164 tokens and 82 syntax nodes.' ]]

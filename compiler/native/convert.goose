@@ -339,14 +339,16 @@ fn convert(source: const u8[:], tokens: const Token[:], nodes: const SyntaxNode[
             let left = child(node);
             let right = next(left);
             let op = text(nodes[left].end_token);
+            let unary_receiver = op == "+" && nodes[left].kind == SyntaxKind.Unary;
             if op == "+" {
                 uses_library = true;
-                output.append("dotgoose::add_i32(");
-            } else {
-                output.push('(');
             }
+            if op != "+" || unary_receiver { output.push('('); }
             let lhs = expression(left, depth + 1);
-            if op == "+" { output.append(", "); }
+            if op == "+" {
+                if unary_receiver { output.push(')'); }
+                output.append(".add(");
+            }
             else { format(output, " ", op, " "); }
             let rhs = expression(right, depth + 1);
             check(lhs == rhs && (lhs == int_type || (lhs == bool_type && (op == "==" || op == "!="))),
