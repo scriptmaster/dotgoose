@@ -1,320 +1,332 @@
 1
-00:00:00,300 --> 00:00:06,870
-This is Dot Goose, part one. We will follow eight
-small C sharp programs through the Goose compiler.
+00:00:00,300 --> 00:00:06,337
+Welcome to Dot Goose, part one. Nine examples show how C sharp
+becomes readable Goose code.
 
 2
-00:00:07,090 --> 00:00:14,490
-For each numbered example, compare the code and the
-output. At the end, we will compare executable sizes.
+00:00:06,617 --> 00:00:11,545
+We will compare the code, explain each result, and finish with
+executable sizes.
 
 3
-00:00:15,175 --> 00:00:16,475
+00:00:12,300 --> 00:00:13,260
 First example.
 
 4
-00:00:17,125 --> 00:00:18,705
+00:00:14,060 --> 00:00:15,297
 A first translation.
 
 5
-00:00:19,185 --> 00:00:24,645
-Explanation: This program prints Dot Goose, starts
-with forty, and adds two.
+00:00:15,847 --> 00:00:20,370
+Explanation: This program prints Dot Goose, starts with forty,
+and adds two.
 
 6
-00:00:24,865 --> 00:00:30,325
-The C sharp integer becomes I thirty two in Goose, and
-Write Line becomes print.
+00:00:20,650 --> 00:00:25,557
+The C sharp integer becomes I thirty two in Goose, and Write
+Line becomes print.
 
 7
-00:00:31,008 --> 00:00:34,908
-The condition still checks for forty-two before
+00:00:26,300 --> 00:00:30,716
+Explanation: The condition still checks for forty-two before
 printing the value.
 
 8
-00:00:35,128 --> 00:00:41,738
+00:00:30,996 --> 00:00:37,140
 Both runs also print the wrapped result from the final
 addition. We will unpack that in chapter four.
 
 9
-00:00:42,425 --> 00:00:43,725
+00:00:37,883 --> 00:00:38,886
 Second example.
 
 10
-00:00:44,375 --> 00:00:45,825
+00:00:39,686 --> 00:00:40,753
 Console escapes.
 
 11
-00:00:46,305 --> 00:00:50,335
-Explanation: Look at the strings between the quotation
-marks.
+00:00:41,303 --> 00:00:44,631
+Explanation: Look at the strings between the quotation marks.
 
 12
-00:00:50,555 --> 00:00:57,615
-Only the call changes. The escape sequences for the
-tab, quotes, backslash, and line breaks carry through.
+00:00:44,911 --> 00:00:51,396
+Only the call changes. The escape sequences for the tab,
+quotes, backslash, and line breaks carry through.
 
 13
-00:00:58,300 --> 00:01:04,290
-The first print writes an empty line. Later, carriage
-return and newline remain distinct.
+00:00:52,133 --> 00:00:58,512
+Explanation: The first print writes an empty line. Later,
+carriage return and newline remain distinct.
 
 14
-00:01:04,510 --> 00:01:10,250
+00:00:58,792 --> 00:01:04,061
 The test compares raw output bytes, so even a change a
 terminal might hide would fail.
 
 15
-00:01:10,925 --> 00:01:12,205
+00:01:04,800 --> 00:01:05,717
 Third example.
 
 16
-00:01:12,855 --> 00:01:14,365
+00:01:06,517 --> 00:01:07,712
 Loops and branches.
 
 17
-00:01:14,845 --> 00:01:22,245
-Explanation: The index starts at zero and stops before
-five. The running total starts at negative two.
+00:01:08,262 --> 00:01:14,833
+Explanation: The index starts at zero and stops before five.
+The running total starts at negative two.
 
 18
-00:01:22,465 --> 00:01:28,485
-At index two, the else branch changes the Boolean flag
-instead of adding to the total.
+00:01:15,113 --> 00:01:20,275
+At index two, the else branch changes the Boolean flag instead
+of adding to the total.
 
 19
-00:01:29,175 --> 00:01:35,395
-The remaining additions take the total to six. The
-final condition checks the total and the flag.
+00:01:21,008 --> 00:01:27,686
+Explanation: The remaining additions take the total to six.
+The final condition checks the total and the flag.
 
 20
-00:01:35,615 --> 00:01:40,185
-Goose keeps the same loop and branch structure. Both
-runs print six.
+00:01:27,966 --> 00:01:32,126
+Goose keeps the same loop and branch structure. Both runs
+print six.
 
 21
-00:01:40,842 --> 00:01:42,162
+00:01:32,883 --> 00:01:33,801
 Fourth example.
 
 22
-00:01:42,812 --> 00:01:44,512
+00:01:34,601 --> 00:01:35,689
 Integer overflow.
 
 23
-00:01:44,992 --> 00:01:50,672
-Explanation: This example adds one to the largest
-signed thirty-two-bit integer.
+00:01:36,239 --> 00:01:41,209
+Explanation: This example adds one to the largest signed
+thirty-two-bit integer.
 
 24
-00:01:50,892 --> 00:01:56,092
-Unchecked C sharp arithmetic wraps around, giving the
-smallest signed integer.
+00:01:41,489 --> 00:01:46,247
+Unchecked C sharp arithmetic wraps around, giving the smallest
+signed integer.
 
 25
-00:01:56,758 --> 00:02:03,388
-The Dot Goose helper adds the same bits as unsigned
-values, then casts back to a signed integer.
+00:01:47,008 --> 00:01:54,198
+Explanation: The Dot Goose helper adds the same bits as
+unsigned values, then casts back to a signed integer.
 
 26
-00:02:03,608 --> 00:02:09,008
-That preserves all three results even when Goose runs
-with debug checks enabled.
+00:01:54,478 --> 00:01:59,214
+That preserves all three results even when Goose runs with
+debug checks enabled.
 
 27
-00:02:09,675 --> 00:02:10,891
+00:01:59,967 --> 00:02:00,884
 Fifth example.
 
 28
-00:02:11,541 --> 00:02:13,354
+00:02:01,684 --> 00:02:02,985
 From classes to structs.
 
 29
-00:02:13,834 --> 00:02:20,687
-Explanation: The scoped Counter class becomes a Goose
-struct. The factory named new Counter takes the
+00:02:03,535 --> 00:02:11,066
+Explanation: The scoped Counter class becomes a Goose struct.
+The factory named new Counter takes the constructor argument.
 
 30
-00:02:20,687 --> 00:02:22,112
-constructor argument.
+00:02:11,346 --> 00:02:16,850
+Add still looks like a method call. Its writable receiver lets
+it update the counter in place.
 
 31
-00:02:22,332 --> 00:02:28,390
-Add still looks like a method call. Its writable
-receiver lets it update the counter in place.
+00:02:17,592 --> 00:02:23,181
+Explanation: Point is a value type. Copying it gives the
+program an independent value.
 
 32
-00:02:29,050 --> 00:02:34,106
-Point is a value type. Copying it gives the program an
-independent value.
+00:02:23,461 --> 00:02:30,352
+Changing the copy leaves the original sum at thirteen. The
+copy prints five, after the counter prints forty-two.
 
 33
-00:02:34,326 --> 00:02:41,629
-Changing the copy leaves the original sum at thirteen.
-The copy prints five, after the counter prints forty-
-
-34
-00:02:41,629 --> 00:02:41,899
-two.
-
-35
-00:02:42,550 --> 00:02:43,894
+00:02:31,092 --> 00:02:32,052
 Sixth example.
 
-36
-00:02:44,544 --> 00:02:46,357
+34
+00:02:32,852 --> 00:02:34,388
 Defaults and struct copies.
 
+35
+00:02:34,938 --> 00:02:42,383
+Explanation: The explicit Point constructor sets X and marks
+the point ready. The parameterless construction uses defaults.
+
+36
+00:02:42,663 --> 00:02:46,311
+That means zero for both coordinates and false for the ready
+flag.
+
 37
-00:02:46,837 --> 00:02:54,335
-Explanation: The explicit Point constructor sets X and
-marks the point ready. The parameterless construction
+00:02:47,050 --> 00:02:54,901
+Explanation: Changing the blank point's Y coordinate does not
+set its flag. Its Value method still returns negative one.
 
 38
-00:02:54,335 --> 00:02:55,307
-uses defaults.
+00:02:55,181 --> 00:03:01,623
+The assigned copy can change independently. The final values
+are seven, negative one, and nine.
 
 39
-00:02:55,527 --> 00:02:59,495
-That means zero for both coordinates and false for the
-ready flag.
-
-40
-00:03:00,175 --> 00:03:07,642
-Changing the blank point's Y coordinate does not set
-its flag. Its Value method still returns negative one.
-
-41
-00:03:07,862 --> 00:03:15,115
-The assigned copy can change independently. The final
-values are seven, negative one, and nine.
-
-42
-00:03:15,800 --> 00:03:17,101
+00:03:02,383 --> 00:03:03,429
 Seventh example.
 
-43
-00:03:17,751 --> 00:03:19,714
+40
+00:03:04,229 --> 00:03:05,786
 Same name, different receiver.
 
+41
+00:03:06,336 --> 00:03:13,723
+Explanation: Point and Counter each declare a method called
+Read. The receiver type tells the compiler which method to
+
+42
+00:03:13,723 --> 00:03:13,973
+use.
+
+43
+00:03:14,253 --> 00:03:18,499
+Goose represents those methods as functions with distinct
+receiver types.
+
 44
-00:03:20,194 --> 00:03:27,204
-Explanation: Point and Counter each declare a method
-called Read. The receiver type tells the compiler
+00:03:19,258 --> 00:03:26,128
+Explanation: Point reads seven. Counter reads twenty-one, and
+Read Twice calls the counter version two times.
 
 45
-00:03:27,204 --> 00:03:28,578
-which method to use.
+00:03:26,408 --> 00:03:33,576
+Setting the enabled flag to false changes the counter to
+negative one. Both runs produce the same sequence.
 
 46
-00:03:28,798 --> 00:03:33,534
-Goose represents those methods as functions with
-distinct receiver types.
-
-47
-00:03:34,217 --> 00:03:40,681
-Point reads seven. Counter reads twenty-one, and Read
-Twice calls the counter version two times.
-
-48
-00:03:40,901 --> 00:03:48,581
-Setting the enabled flag to false changes the counter
-to negative one. Both runs produce the same sequence.
-
-49
-00:03:49,258 --> 00:03:50,624
+00:03:34,342 --> 00:03:35,259
 Eighth example.
 
-50
-00:03:51,274 --> 00:03:53,834
+47
+00:03:36,059 --> 00:03:37,936
 Evaluation order with side effects.
 
+48
+00:03:38,486 --> 00:03:44,481
+Explanation: The counter starts at ten. The left side of the
+sum calls Next first, printing eleven.
+
+49
+00:03:44,761 --> 00:03:49,796
+Then the two arguments to Take call Next again, printing
+twelve and thirteen in that order.
+
+50
+00:03:50,550 --> 00:03:56,246
+Explanation: Take prints its first argument, twelve, and
+returns its second argument, thirteen.
+
 51
-00:03:54,314 --> 00:04:01,226
-Explanation: The counter starts at ten. The left side
-of the sum calls Next first, printing eleven.
+00:03:56,526 --> 00:03:59,939
+The sum prints twenty-four, and the counter still holds
+thirteen.
 
 52
-00:04:01,446 --> 00:04:06,886
-Then the two arguments to Take call Next again,
-printing twelve and thirteen in that order.
+00:04:00,219 --> 00:04:06,406
+Matching only the final value would miss a reordered print.
+The test compares the entire sequence.
 
 53
-00:04:07,550 --> 00:04:13,118
-Take prints its first argument, twelve, and returns
-its second argument, thirteen.
+00:04:07,175 --> 00:04:08,156
+Ninth example.
 
 54
-00:04:13,338 --> 00:04:17,349
-The sum prints twenty-four, and the counter still
-holds thirteen.
+00:04:08,956 --> 00:04:10,620
+Raw strings and interpolation.
 
 55
-00:04:17,569 --> 00:04:24,203
-Matching only the final value would miss a reordered
-print. The test compares the entire sequence.
+00:04:11,170 --> 00:04:16,354
+Explanation: Triple quotes let the JSON quotation marks stay
+exactly as written.
 
 56
-00:04:24,883 --> 00:04:28,297
-Here are the file sizes for the eight Linux examples.
+00:04:16,634 --> 00:04:24,531
+The compiler recognizes C sharp raw strings and keeps the same
+form in Goose. A longer quote delimiter becomes an escaped
 
 57
-00:04:28,517 --> 00:04:33,423
-The Goose build with system C libraries is fourteen
-point six kilobytes.
+00:04:24,531 --> 00:04:25,445
+Goose literal.
 
 58
-00:04:33,643 --> 00:04:37,441
-Dot net Native A O T is one point one megabytes.
+00:04:26,175 --> 00:04:34,487
+Explanation: A dollar sign opens an interpolated C sharp
+string. The expressions inside braces are parsed and bound
 
 59
-00:04:37,661 --> 00:04:43,997
-The compressed, self-contained dot net single-file
-build is thirty-nine point two megabytes.
+00:04:34,487 --> 00:04:35,860
+like ordinary code.
 
 60
-00:04:44,217 --> 00:04:48,889
-The smaller managed D L L uses an installed dot net
-runtime.
+00:04:36,140 --> 00:04:44,796
+Two dollar signs let single JSON braces stay literal. In
+Goose, str joins the text and values, and the helper preserves
 
 61
-00:04:49,550 --> 00:04:56,788
-The fourteen point six kilobyte Goose build bundles
-the Goose runtime and still loads the system C
+00:04:44,796 --> 00:04:46,615
+C sharp Boolean spelling.
 
 62
-00:04:56,788 --> 00:04:57,379
-library.
+00:04:46,895 --> 00:04:51,631
+The test also checks that expressions with side effects run in
+the original order.
 
 63
-00:04:57,599 --> 00:05:04,714
-We also built a fully static version, around nine
-hundred fifty-five kilobytes. It includes the C
+00:04:52,383 --> 00:04:58,847
+Here are the measured file sizes for all nine programs. Each
+row was checked against the dot net output.
 
 64
-00:05:04,714 --> 00:05:05,301
-library.
+00:04:59,127 --> 00:05:06,585
+The first eight small Goose programs use about fourteen point
+six kilobytes with system libraries. The raw string and
 
 65
-00:05:05,521 --> 00:05:11,793
-All eight static examples ran in an empty Linux root
-with only the executable present.
+00:05:06,585 --> 00:05:09,581
+interpolation example is shown in the last row.
 
 66
-00:05:12,013 --> 00:05:17,495
-These examples can use a Docker scratch image on
-compatible Kubernetes nodes.
+00:05:09,861 --> 00:05:18,486
+Compare the static Goose build with dot net Native A O T, and
+the compressed self-contained dot net build. The small managed
 
 67
-00:05:17,715 --> 00:05:22,302
-A real backend may still need files such as T L S
-certificates.
+00:05:18,486 --> 00:05:21,338
+D L L needs an installed dot net runtime.
 
 68
-00:05:22,967 --> 00:05:29,623
-All eight programs matched in the test suite, both as
-Goose executables and in Goose debug mode.
+00:05:22,092 --> 00:05:27,148
+The fourteen kilobyte Goose program still needs the system C
+library and loader.
 
 69
-00:05:29,843 --> 00:05:35,752
-The source, compiler, test suite, and build commands
-are in the Dot Goose repository.
+00:05:27,428 --> 00:05:35,526
+The fully static build includes the C library. We verified
+that all nine static programs ran with only their executable
+
+70
+00:05:35,526 --> 00:05:37,092
+in an empty Linux root.
+
+71
+00:05:37,372 --> 00:05:45,213
+That makes these console examples suitable for a Docker
+scratch image on compatible Kubernetes nodes. A backend can
+
+72
+00:05:45,213 --> 00:05:48,486
+still need resources such as T L S certificates.

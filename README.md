@@ -10,7 +10,7 @@ The [strings sample](samples/strings/Program.cs) shows raw JSON literals and int
 
 ## Explainer video
 
-https://github.com/user-attachments/assets/ba69e609-fb06-4d32-864e-c17db9d70af0
+https://github.com/user-attachments/assets/38ffd661-53ae-4b17-9234-a239cebae494
 
 [Download Part 1 · C# to Goose (MP4)](https://github.com/scriptmaster/dotgoose/raw/refs/heads/main/videos/dotgoose-part-1.mp4) · [English captions](videos/dotgoose-part-1.en.srt)
 
@@ -56,7 +56,7 @@ stat -c '%n %s bytes' goose-app goose-static aot/Sample single/Sample managed/Sa
 
 ## Part 2 web examples
 
-https://github.com/user-attachments/assets/9fba8434-4eec-4a36-b1de-65843cc6471c
+https://github.com/user-attachments/assets/30470241-b69b-4b66-8d13-ea0ac909a00c
 
 [Download Part 2 (MP4)](https://github.com/scriptmaster/dotgoose/raw/refs/heads/main/videos/dotgoose-part-2.mp4) · [English captions](videos/dotgoose-part-2.en.srt)
 

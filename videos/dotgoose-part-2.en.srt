@@ -1,103 +1,277 @@
 1
-00:00:00,300 --> 00:00:05,335
-Part two compares six web examples, from a health check to a
-controller and view.
+00:00:00,300 --> 00:00:07,084
+Welcome to Dot Goose, part two. Six backend examples now share
+the same web application builder pattern.
 
 2
-00:00:06,050 --> 00:00:07,351
-First example.
+00:00:07,364 --> 00:00:16,084
+Each Goose program has program main, called once by main. We
+will compare its behavior, executable size, CPU time, and peak
 
 3
-00:00:07,971 --> 00:00:09,294
-Health endpoint.
+00:00:16,084 --> 00:00:16,580
+memory.
 
 4
-00:00:09,744 --> 00:00:15,013
-Explanation: Both servers map the same path to a small JSON
-response.
+00:00:17,342 --> 00:00:18,302
+First example.
 
 5
-00:00:15,717 --> 00:00:16,975
-Second example.
+00:00:19,102 --> 00:00:20,104
+Health endpoint.
 
 6
-00:00:17,595 --> 00:00:18,939
-Routing and query.
+00:00:20,654 --> 00:00:27,854
+Explanation: Create slim builder receives the arguments. Clear
+providers configures logging, and Build creates the
 
 7
-00:00:19,389 --> 00:00:27,133
-Explanation: ASP dot net binds the item ID. Goose parses the
-path and checks the query explicitly.
+00:00:27,854 --> 00:00:28,612
+application.
 
 8
-00:00:27,842 --> 00:00:29,143
-Third example.
+00:00:28,892 --> 00:00:36,596
+Map Get registers the health handler. Run starts the server.
+The Goose function named program main contains all five
 
 9
-00:00:29,763 --> 00:00:31,086
-Ordered middleware.
+00:00:36,596 --> 00:00:39,452
+startup statements, and main calls it once.
 
 10
-00:00:31,536 --> 00:00:38,768
-Explanation: The ID check runs before the endpoint. A rejected
-request stops at the first stage.
+00:00:40,217 --> 00:00:47,790
+Explanation: Results dot Text returns the raw JSON as text
+with an application slash JSON content type.
 
 11
-00:00:39,508 --> 00:00:40,810
-Fourth example.
+00:00:48,070 --> 00:00:55,723
+Triple quotes work in both languages, so the quotation marks
+around status and ok need no backslash escapes. Repeated
 
 12
-00:00:41,430 --> 00:00:43,392
-JSON body validation.
+00:00:55,723 --> 00:00:57,947
+requests use the compiled handler.
 
 13
-00:00:43,842 --> 00:00:50,328
-Explanation: Both parse JSON and validate the fields before
-sending a created response.
+00:00:58,717 --> 00:00:59,719
+Second example.
 
 14
-00:00:51,050 --> 00:00:52,287
-Fifth example.
+00:01:00,519 --> 00:01:01,565
+Routing and query.
 
 15
-00:00:52,907 --> 00:00:54,401
-Request-scoped state.
+00:01:02,115 --> 00:01:09,889
+Explanation: The same builder pattern sets up the application.
+The endpoint uses an integer route constraint and checks the
 
 16
-00:00:54,851 --> 00:01:05,603
-Explanation: ASP dot net shares a scoped service. Goose passes
-one request-local struct by reference and updates it with the
-imported add overload.
+00:01:09,889 --> 00:01:10,584
+query text.
 
 17
-00:01:06,342 --> 00:01:07,664
-Sixth example.
+00:01:10,864 --> 00:01:18,180
+Dot Goose stores the route and a compiled handler ID during
+startup. It does not repeat the builder calls for each
 
 18
-00:01:08,284 --> 00:01:10,332
-MVC controller and view.
+00:01:18,180 --> 00:01:18,693
+request.
 
 19
-00:01:10,782 --> 00:01:19,316
-Explanation: An MVC action chooses a Razor view. Goose calls a
-view function and returns the same HTML.
+00:01:19,425 --> 00:01:26,636
+Explanation: A valid ID reaches the handler. The include
+details query selects one of two JSON bodies.
 
 20
-00:01:20,050 --> 00:01:28,349
-Here are the executable sizes. Static Goose includes the C
-library. The smaller Goose build uses system libraries.
+00:01:26,916 --> 00:01:34,041
+The same tests also check a missing query, invalid text, a
+nonnumeric ID, and an out of range integer.
 
 21
-00:01:28,629 --> 00:01:37,354
-MVC uses the self-contained dot net build because Native A O T
-does not support ASP dot net MVC.
+00:01:34,800 --> 00:01:35,717
+Third example.
 
 22
-00:01:38,092 --> 00:01:46,113
-These are application line counts and server measurements.
-Each run used two thousand loopback HTTP requests.
+00:01:36,517 --> 00:01:37,456
+Ordered middleware.
 
 23
-00:01:46,393 --> 00:01:54,884
-CPU time includes startup and shutdown. Peak memory counts the
-server process. The readme explains the test setup.
+00:01:38,006 --> 00:01:41,995
+Explanation: Both programs register middleware before the
+endpoint.
+
+24
+00:01:42,275 --> 00:01:50,489
+The first stage validates the request ID. The second adds the
+endpoint stage. A rejected request stops before the handler.
+
+25
+00:01:51,258 --> 00:02:00,389
+Explanation: The request ID check runs before the endpoint. If
+it fails, the middleware sends an HTTP four hundred response.
+
+26
+00:02:00,669 --> 00:02:07,560
+A valid request receives the echoed ID and the ordered stages
+header. The route handler then returns pong.
+
+27
+00:02:08,300 --> 00:02:09,217
+Fourth example.
+
+28
+00:02:10,017 --> 00:02:11,660
+JSON body validation.
+
+29
+00:02:12,210 --> 00:02:18,354
+Explanation: Both applications register a post endpoint and
+require a JSON content type.
+
+30
+00:02:18,634 --> 00:02:25,973
+The handler parses the body, validates name and quantity, and
+returns a created response with the same location header.
+
+31
+00:02:26,717 --> 00:02:31,773
+Explanation: The JSON reader and field checks live inside the
+registered handler.
+
+32
+00:02:32,053 --> 00:02:41,850
+Malformed JSON, a wrong content type, or invalid fields return
+an HTTP four hundred response. Valid input returns two hundred
+
+33
+00:02:41,850 --> 00:02:46,474
+one, with the same JSON and location header as ASP dot net.
+
+34
+00:02:47,217 --> 00:02:48,134
+Fifth example.
+
+35
+00:02:48,934 --> 00:02:50,193
+Request-scoped state.
+
+36
+00:02:50,743 --> 00:02:54,903
+Explanation: The builder registers a scoped Visit service
+before Build.
+
+37
+00:02:55,183 --> 00:03:02,372
+The middleware and endpoint get the same Visit instance during
+one request. The next request gets a fresh instance.
+
+38
+00:03:03,133 --> 00:03:08,573
+Explanation: Get required service returns the request scoped
+Visit value by reference.
+
+39
+00:03:08,853 --> 00:03:16,590
+The middleware advances it once and the endpoint advances it
+again. Each response reports step two, including after an
+
+40
+00:03:16,590 --> 00:03:17,771
+unrelated request.
+
+41
+00:03:18,508 --> 00:03:19,468
+Sixth example.
+
+42
+00:03:20,268 --> 00:03:21,890
+MVC controller and view.
+
+43
+00:03:22,440 --> 00:03:29,530
+Explanation: Create builder enables the full hosting setup,
+and Add controllers with views enables controller
+
+44
+00:03:29,530 --> 00:03:30,376
+registration.
+
+45
+00:03:30,656 --> 00:03:38,968
+Map controllers registers the catalog endpoint. The Razor file
+is compiled into a Goose render function and reused for each
+
+46
+00:03:38,968 --> 00:03:39,509
+request.
+
+47
+00:03:40,258 --> 00:03:45,336
+Explanation: The catalog controller checks the ID and builds
+the model for its view.
+
+48
+00:03:45,616 --> 00:03:53,468
+The Goose mapping uses the same model fields. It calls render
+Show, which was generated from the original Razor file before
+
+49
+00:03:53,468 --> 00:03:54,234
+compilation.
+
+50
+00:03:54,967 --> 00:04:00,812
+The Razor compiler reads the template at build time and
+creates an ordinary Goose render function.
+
+51
+00:04:01,092 --> 00:04:09,329
+It supports the model directive, model properties, and a
+doubled at sign for literal text. Model text is HTML escaped.
+
+52
+00:04:09,329 --> 00:04:12,121
+The server reuses the compiled function.
+
+53
+00:04:12,883 --> 00:04:17,641
+These are the executable sizes of the six updated builder
+based examples.
+
+54
+00:04:17,921 --> 00:04:25,939
+The smaller Goose build uses the system C library. Static
+Goose includes libc. Dot net Native A O T is shown where
+
+55
+00:04:25,939 --> 00:04:30,230
+supported, and MVC uses the self-contained single-file build.
+
+56
+00:04:30,967 --> 00:04:37,751
+The application statements use the same number of lines as C
+sharp, or fewer, across all six examples.
+
+57
+00:04:38,031 --> 00:04:46,555
+Goose also has four explicit entry point lines. This table
+shows those separately and includes the complete source total.
+
+58
+00:04:46,555 --> 00:04:50,148
+MVC includes the same Razor template on both sides.
+
+59
+00:04:50,883 --> 00:04:59,976
+Server CPU time includes startup, two thousand requests, and
+shutdown. Memory is peak resident memory. The dot net column
+
+60
+00:04:59,976 --> 00:05:04,259
+uses Native A O T except for MVC, which uses single-file.
+
+61
+00:05:04,539 --> 00:05:09,275
+These results describe this sequential loopback workload and
+this Linux machine.
