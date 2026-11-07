@@ -53,6 +53,10 @@ stat -c '%n %s bytes' goose-app goose-static aot/Sample single/Sample managed/Sa
 
 ## Part 2 web examples
 
+https://github.com/user-attachments/assets/9fba8434-4eec-4a36-b1de-65843cc6471c
+
+[Download Part 2 (MP4)](https://github.com/scriptmaster/dotgoose/raw/refs/heads/main/videos/dotgoose-part-2.mp4) · [English captions](videos/dotgoose-part-2.en.srt)
+
 Six paired ASP.NET Core and Goose programs cover health checks, route and query binding, middleware, JSON validation, request scope, and an MVC controller with a Razor view. The Goose examples are hand-ported and share a small Linux HTTP transport.
 
 The [web comparison](samples/web/README.md#part-2-measurements) reports application lines, executable sizes, CPU time, and peak RAM. Every build was checked against the same HTTP response contract. The recorded measurements use 2,000 sequential loopback requests per run.
