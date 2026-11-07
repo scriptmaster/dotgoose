@@ -61,6 +61,8 @@ Six paired ASP.NET Core and Goose programs cover health checks, route and query 
 
 The [web comparison](samples/web/README.md#part-2-measurements) reports application lines, executable sizes, CPU time, and peak RAM. Every build was checked against the same HTTP response contract. The recorded measurements use 2,000 sequential loopback requests per run.
 
+The [enhanced ports](samples/web/README.md#enhanced-ports) use the DotGoose web library. All six fit within the ASP.NET Core application line counts. The MVC port compiles the same Razor template into a Goose function and reuses it for each request.
+
 ## Run a conversion sample
 
 The starter compiler runs with the [pinned Goose toolchain](spec/README.md). Run this from the repository root.

@@ -13,12 +13,55 @@ Six pairs compare ASP.NET Core with hand-ported Goose handlers on Linux x64. The
 
 The test contract covers canonical paths, selected headers, status codes, media types, and response bytes. The Goose transport binds to loopback, serves one request per connection, and caps request headers at 8 KiB and bodies at 4 KiB. It accepts length-delimited HTTP/1.1 requests. It is a sequential demonstration transport. ASP.NET Core uses Kestrel and its standard HTTP stack.
 
+## Enhanced ports
+
+The [enhanced examples](enhanced) use the reusable [DotGoose web package](../../lib/web/web.goose) with the same ASP.NET Core programs and HTTP contract. The package handles the server loop, exact and integer-parameter routes, middleware ordering, 404 and 405 responses, request headers, JSON parsing and serialization, and HTML responses.
+
+```goose
+import web from "../../../../lib/web";
+
+fn routes(app: web::App<i32>&) {
+    app.MapGet("/healthz") { req => req.Json("status", "ok"); };
+}
+fn main() { web::Run(routes); }
+```
+
+`GET /healthz` returns HTTP 200 with `{"status":"ok"}`. `POST /healthz` returns HTTP 405 with `Allow: GET`.
+
+`Run(routes)` invokes the route block for each request. Goose resolves the handler calls at compile time. Declare `app.Use()` middleware before the routes it applies to. Middleware can respond early, which skips subsequent hooks and handlers. `RunWith(initialState, routes)` gives each request its own state. Route templates support a final `{id:int}` or `{id:int:min(1)}` segment, with the bound value in `req.id`.
+
+| Example | Goose code lines | ASP.NET Core code lines | Physical lines, Goose / ASP.NET Core |
+| --- | ---: | ---: | ---: |
+| [Health](enhanced/01-health) | 5 | 5 | 6 / 6 |
+| [Routing and query](enhanced/02-routing) | 13 | 14 | 15 / 15 |
+| [Middleware](enhanced/03-middleware) | 14 | 26 | 18 / 30 |
+| [JSON validation](enhanced/04-json) | 18 | 29 | 20 / 36 |
+| [Request scope](enhanced/05-scope) | 9 | 17 | 11 / 21 |
+| [MVC and views](enhanced/06-mvc) | 23 | 26 | 26 / 31 |
+
+The MVC counts include the same seven-line Razor template on both sides. Generated view code and shared framework code are outside the application counts. The reusable Goose web package and its C transport total 339 code lines.
+
+### Compile and reuse a Razor view
+
+The MVC app uses the original [Show.cshtml](06-mvc/Views/Catalog/Show.cshtml). The `razor` subcommand emits `render_Show` as ordinary Goose code. Build the app once, then the handler calls that compiled function for every matching request.
+
+```sh
+goose run compiler/native/dotgoose.goose -- razor \
+    samples/web/06-mvc/Views/Catalog/Show.cshtml render_Show \
+    --output samples/web/enhanced/06-mvc/view.goose
+goose build samples/web/enhanced/06-mvc/main.goose --cc gcc -o /tmp/dotgoose-mvc
+/tmp/dotgoose-mvc 5512
+```
+
+`GET /catalog/42` renders the HTML for item 42. `GET /catalog/999` returns HTTP 404. The template subset supports `@model Type`, HTML-escaped `@Model.Property`, and `@@` for a literal at sign. See the [view compilation spec](../../spec/backend.md#razor-view-compilation) for the grammar.
+
 ## Verify and measure
 
 Use the pinned Goose compiler, .NET 10 SDK, GCC, Python 3.10 or newer, and GNU time on Linux x64.
 
 ```sh
 python3 test/web.py
+python3 test/web.py --enhanced
 python3 test/web.py --benchmark /tmp/dotgoose-web.json
 ```
 
@@ -41,7 +84,7 @@ Measured on Ubuntu 22.04 x64 with two logical CPUs on an AMD EPYC 9354P, GCC 11.
 | [Request scope](05-scope) | 24 | 17 |
 | [MVC and views](06-mvc) | 20 | 26 |
 
-The Goose examples share 188 additional source lines across the HTTP module and C transport. Request scope also imports the 7-line addition library. The ASP.NET Core counts cover application source and leave framework internals outside the line counts.
+The original measured snapshot shares 188 additional source lines across the Goose HTTP module and C transport. Its request-scope example also imports the 7-line addition library. The ASP.NET Core counts cover application source and leave framework internals outside the line counts.
 
 ### Executable size and server cost
 

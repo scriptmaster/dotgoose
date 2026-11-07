@@ -2,6 +2,12 @@
 
 The [Part 2 web examples](../samples/web/README.md) provide hand-ported HTTP fixtures and measured baselines. They cover routing, middleware, JSON, request scope, and a controller/view flow. Their loopback transport is a demonstration, and automatic ASP.NET Core conversion remains a roadmap item.
 
+## Razor view compilation
+
+`dotgoose razor TEMPLATE render_NAME [--output FILE]` compiles a UTF-8 template into a Goose function returning rendered HTML. The generated module uses the `web` package's HTML writer. The application imports and compiles that module alongside its model struct, then reuses the function for each request.
+
+The first line declares `@model Type`. The remaining input consists of literal HTML, `@@` for a literal at sign, and `@Model.Property` for one public model field. Model type and field names start with an ASCII uppercase letter. The renderer supports text and signed integer fields. Text uses HTML escaping for markup text and quoted attribute contexts. Layouts, directives other than `@model`, and C# expressions are outside this grammar. Invalid syntax reports `DG2001` with a source location and preserves any existing output file.
+
 ## Library resolution
 
 Resolve each BCL or third-party use against the bound symbol and selected target framework. The mapping key includes assembly or package identity, version range, fully qualified type, generic arity, member name and parameter types. Prefer direct Goose operations, then a versioned DotGoose module, then opted-in source conversion. Keep native and compatibility dependencies explicit in generated imports. Stage the required library beside the output, or use a relative source import for the starter. Conversion reports record the original symbol, selected mapping and semantic restrictions.

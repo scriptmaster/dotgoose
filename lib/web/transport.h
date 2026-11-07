@@ -159,3 +159,12 @@ static void dg_reply(int32_t client, int32_t status, sl_u8 mime, sl_u8 body,
         dg_send_all(client, body.data, (size_t)body.len);
     close(client);
 }
+
+static void dg_method_not_allowed(int32_t client, sl_u8 allow) {
+    char header[128];
+    int n = snprintf(header, sizeof header,
+        "HTTP/1.1 405 Method Not Allowed\r\nAllow: %.*s\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+        (int)allow.len, (const char *)allow.data);
+    if (n > 0 && (size_t)n < sizeof header) dg_send_all(client, header, (size_t)n);
+    close(client);
+}

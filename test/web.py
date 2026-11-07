@@ -17,6 +17,8 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "samples" / "web"
 SHARED = WEB / "shared"
+WEB_LIBRARY = ROOT / "lib" / "web"
+ENHANCED = WEB / "enhanced"
 GOOSE = os.environ.get("GOOSE", "goose")
 JSON = "application/json"
 TEXT = "text/plain"
@@ -80,6 +82,18 @@ CASES = {
     ),
 }
 
+ENHANCED_CASES = {
+    "01-health": (Case("POST", "/healthz", 405, expect=(("Allow", "GET"),)),),
+    "02-routing": (Case("GET", "/api/items/2147483648", 404),),
+    "04-json": (
+        Case("GET", "/api/items", 405, expect=(("Allow", "POST"),)),
+        Case("POST", "/api/items", 201, '{"name":"Gear","quantity":2}', JSON,
+             (("Content-Type", "Application/JSON"),), (("Location", "/api/items/42"),),
+             '{"name":"Gear","quantity":2}'),
+    ),
+    "06-mvc": (CASES["06-mvc"][0], Case("POST", "/catalog/42", 405, expect=(("Allow", "GET"),))),
+}
+
 @dataclass(frozen=True)
 class Variant:
     name: str
@@ -102,16 +116,64 @@ def code_lines(path):
     return sum(bool(line.strip()) and not line.lstrip().startswith(("//", "/*"))
                for line in path.read_text().splitlines())
 
-def build(name, work, benchmark):
+def razor_command(template, name, target):
+    return [GOOSE, "run", ROOT / "compiler" / "native" / "dotgoose.goose", "--", "razor",
+            template, name, "--output", target]
+
+def verify_view_compiler(work):
+    (work / "lib").symlink_to(ROOT / "lib", target_is_directory=True)
+    template = work / "Escaping.cshtml"
+    generated = work / "view.goose"
+    template.write_text("@model Example\n<p>@@ @Model.Name @Model.Id</p>\n")
+    run(razor_command(template, "render_Escaping", generated), work)
+    program = work / "main.goose"
+    program.write_text(r'''
+import web from "./lib/web";
+import .view;
+
+struct Example { Name: const u8[:], Id: i32 }
+
+fn main() {
+    let text = render_Escaping(Example { Name: "<&\"'>", Id: 42 });
+    assert(text[..] == "<p>@ &lt;&amp;&quot;&#39;&gt; 42</p>\n");
+}
+''')
+    c_file, executable = work / "view.c", work / "view-test"
+    run([GOOSE, "--standalone", "-o", c_file, program], work)
+    run(["gcc", "-O2", "-Wno-attributes", c_file, "-o", executable, "-lm", "-pthread"], work)
+    run([executable], work)
+
+    before = generated.read_bytes()
+    template.write_text("@model Example\n<p>@Model.Name.Trim()</p>\n")
+    failure = subprocess.run(razor_command(template, "render_Escaping", generated), cwd=work,
+                             env=ENV, capture_output=True, text=True, timeout=30)
+    assert failure.returncode == 1 and not failure.stdout
+    assert "Escaping.cshtml(2,15): error DG2001: expected a single model property" in failure.stderr
+    assert generated.read_bytes() == before
+    print("PASS Razor: compiled interpolation, HTML escaping, @@, and source diagnostics", flush=True)
+
+def build(name, work, benchmark, enhanced):
     source = WEB / name
     src = work / "src"
     shutil.copytree(source, src)
     shutil.copy2(SHARED / "Web.csproj", src)
-    shutil.copy2(SHARED / "http.goose", src)
-    shutil.copy2(ROOT / "lib" / "dotgoose.goose", src)
-
     c_file = work / "generated.c"
-    run([GOOSE, "--standalone", "--include", str(SHARED / "transport.h"), "-o", c_file, "main.goose"], src)
+    if enhanced:
+        goose_source = ENHANCED / name / "main.goose"
+        if name == "06-mvc":
+            staged = work / "goose-source"
+            view_root = staged / "samples" / "web" / "enhanced" / name
+            view_root.mkdir(parents=True)
+            (staged / "lib").symlink_to(ROOT / "lib", target_is_directory=True)
+            goose_source = Path(shutil.copy2(goose_source, view_root))
+            run(razor_command(source / "Views" / "Catalog" / "Show.cshtml", "render_Show",
+                              view_root / "view.goose"), work)
+        run([GOOSE, "--standalone", "-o", c_file, goose_source], work)
+    else:
+        shutil.copy2(WEB_LIBRARY / "http.goose", src)
+        shutil.copy2(ROOT / "lib" / "dotgoose.goose", src)
+        run([GOOSE, "--standalone", "--include", WEB_LIBRARY / "transport.h",
+             "-o", c_file, "main.goose"], src)
     gcc = ["gcc", "-O2", "-s", "-Wno-attributes", c_file]
     goose = work / "goose"
     run([*gcc, "-o", goose, "-lm", "-pthread"], work)
@@ -154,7 +216,7 @@ def request(port, case):
         response = conn.getresponse()
         body = response.read()
         mime = response.getheader("Content-Type", "").split(";", 1)[0].strip().lower()
-        selected = ("X-Request-Id", "X-Stages", "Location")
+        selected = ("X-Request-Id", "X-Stages", "Location", "Allow")
         actual = (response.status, mime, body, tuple((h, response.getheader(h)) for h in selected))
         expect = dict(case.expect)
         expected = (case.status, case.mime, case.body.encode(), tuple((h, expect.get(h)) for h in selected))
@@ -215,24 +277,38 @@ def main():
     parser.add_argument("--requests", type=int, default=2000, help="requests per measured run")
     parser.add_argument("--trials", type=int, default=3, help="measured runs per executable")
     parser.add_argument("--only", choices=CASES, help="run one example")
+    parser.add_argument("--enhanced", action="store_true", help="use the DotGoose web API and compiled Razor view")
     args = parser.parse_args()
     if args.requests < 1 or args.trials < 1:
         parser.error("requests and trials must be positive")
     results = []
     with tempfile.TemporaryDirectory(prefix="dotgoose-web-") as temp:
+        if args.enhanced:
+            razor_work = Path(temp) / "razor-test"
+            razor_work.mkdir()
+            verify_view_compiler(razor_work)
         for name, cases in CASES.items():
             if args.only and name != args.only:
                 continue
             work = Path(temp) / name
             work.mkdir()
+            templates = list((WEB / name).rglob("*.cshtml"))
+            dotnet_sources = [*templates, *(WEB / name).rglob("*.cs")]
+            goose_source = (ENHANCED if args.enhanced else WEB) / name / "main.goose"
+            goose_sources = [goose_source, *templates] if args.enhanced else [goose_source]
             record = {
                 "example": name,
-                "dotnet_lines": sum(code_lines(path) for path in (WEB/name).rglob("*")
-                                    if path.suffix in (".cs", ".cshtml")),
-                "goose_lines": code_lines(WEB/name/"main.goose"),
+                "dotnet_lines": sum(code_lines(path) for path in dotnet_sources),
+                "goose_lines": sum(code_lines(path) for path in goose_sources),
                 "variants": {},
             }
-            for variant in build(name, work, args.benchmark is not None):
+            if args.enhanced:
+                assert record["goose_lines"] <= record["dotnet_lines"], name
+                assert sum(len(path.read_text().splitlines()) for path in goose_sources) <= sum(
+                    len(path.read_text().splitlines()) for path in dotnet_sources), name
+                cases += ENHANCED_CASES.get(name, ())
+                print(f"LINES {name}: {record['goose_lines']} Goose / {record['dotnet_lines']} ASP.NET Core", flush=True)
+            for variant in build(name, work, args.benchmark is not None, args.enhanced):
                 variant_work = work / f"run-{variant.name}"
                 variant_work.mkdir()
                 drive(variant, cases, variant_work, len(cases), False)
@@ -248,7 +324,10 @@ def main():
                     print(f"MEASURE {name} / {variant.name}: {record['variants'][variant.name]}", flush=True)
             results.append(record)
     if args.benchmark:
-        shared = sum(code_lines(SHARED/file) for file in ("http.goose", "transport.h"))
+        files = ["http.goose", "transport.h"]
+        if args.enhanced:
+            files.extend(["web.goose", "web.build"])
+        shared = sum(code_lines(WEB_LIBRARY/file) for file in files)
         result = {"requests":args.requests, "trials":args.trials, "shared_goose_lines":shared,
                   "add_library_lines":code_lines(ROOT/"lib"/"dotgoose.goose"), "examples":results}
         args.benchmark.write_text(json.dumps(result, indent=2)+"\n")

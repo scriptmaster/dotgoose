@@ -1,8 +1,13 @@
 import .convert;
 import .diagnostic;
+import .razor;
 
 fn main() {
     let argv = args();
+    if argv.len > 2 && argv[1] == "razor" {
+        razor::run(argv[2..]);
+        return;
+    }
     if !(argv.len == 2 || (argv.len == 4 && argv[2] == "--output" && argv[1] != argv[3])) {
         write_stderr("Usage: dotgoose input.cs [--output output.goose]\n");
         exit(2);
